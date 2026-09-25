@@ -25,7 +25,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-start pb-24 no-scrollbar">
 
-    <!-- ==================== CÁPSULA FLOTANTE DE SALIR ÚNICA ==================== -->
+    <!-- CÁPSULA FLOTANTE DE SALIR ÚNICA -->
     <div id="capsula-flotante-salir" class="hidden fixed bottom-16 right-4 z-50">
         <button onclick="cerrarSesion()" title="Cerrar Sesión" class="bg-[#161626]/90 hover:bg-red-950 border border-neutral-700/80 hover:border-red-500/80 text-slate-300 hover:text-white px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-2xl flex items-center gap-1.5 transition-all active:scale-95">
             <i class="fa-solid fa-power-off text-red-500 text-xs"></i>
@@ -33,7 +33,7 @@
         </button>
     </div>
 
-    <!-- ==================== SPLASH SCREEN DE BIENVENIDA (2.5s) ==================== -->
+    <!-- SPLASH SCREEN DE BIENVENIDA (2.5s) -->
     <div id="splash-screen" class="fixed inset-0 bg-[#07070d] z-[9999] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-700 hidden">
         <div class="space-y-4 max-w-xs">
             <div id="splash-ico-box" class="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto text-white text-3xl shadow-2xl shadow-purple-600/50 animate-bounce">
@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    <!-- ==================== BANNER FLOTANTE: ASISTENCIA MASTER ESTILIZADO ==================== -->
+    <!-- BANNER ASISTENCIA MASTER -->
     <div id="banner-impersonacion" class="hidden bg-[#161208] border-b border-amber-500/40 text-amber-300 px-4 py-1.5 sticky top-0 z-50 flex justify-between items-center text-xs backdrop-blur-md">
         <div class="flex items-center gap-2 truncate">
             <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
@@ -61,7 +61,7 @@
         </button>
     </div>
 
-    <!-- ==================== PANTALLA 1: LOGIN ==================== -->
+    <!-- PANTALLA 1: LOGIN -->
     <div id="vista-login" class="min-h-screen flex flex-col justify-center items-center p-4">
         <div class="card-dark w-full max-w-sm rounded-3xl p-6 sm:p-7 space-y-4 shadow-2xl border border-neutral-800">
             <div class="text-center space-y-2">
@@ -103,7 +103,7 @@
         </div>
     </div>
 
-    <!-- ==================== PANTALLA 2: CORTE / PAUSADO / FIN PRUEBA ==================== -->
+    <!-- PANTALLA 2: CORTE / PAUSADO -->
     <div id="vista-bloqueo-pausado" class="hidden min-h-screen flex flex-col justify-center items-center p-4 text-center">
         <div class="card-dark w-full max-w-sm rounded-3xl p-6 space-y-4 border-2 border-red-500/60 shadow-2xl">
             <div class="w-14 h-14 bg-red-950/60 border border-red-500/50 rounded-2xl flex items-center justify-center mx-auto text-red-500 text-2xl animate-pulse">
@@ -128,7 +128,7 @@
         </div>
     </div>
 
-    <!-- ==================== PANTALLA 3: CONSOLA MASTER (SUPERADMIN) ==================== -->
+    <!-- PANTALLA 3: CONSOLA MASTER (SUPERADMIN) -->
     <div id="vista-master" class="hidden flex flex-col w-full">
         <header class="bg-[#0e0e1a]/95 border-b border-neutral-800 px-4 py-3 sticky top-0 z-40 backdrop-blur-md flex justify-between items-center">
             <div class="flex items-center gap-2">
@@ -181,7 +181,7 @@
         </main>
     </div>
 
-    <!-- ==================== PANTALLA 4: DASHBOARD VENDEDOR ==================== -->
+    <!-- PANTALLA 4: DASHBOARD VENDEDOR -->
     <div id="vista-vendedor" class="hidden flex flex-col w-full">
         <header class="bg-[#0e0e1a]/95 border-b border-neutral-800/80 px-4 py-3 sticky top-0 z-40 backdrop-blur-md flex justify-between items-center">
             <div class="flex items-center gap-2">
@@ -224,7 +224,7 @@
                 </div>
             </div>
 
-            <!-- 2. SERVICIOS FIJOS + CHISMOSEADOR -->
+            <!-- 2. SERVICIOS FIJOS -->
             <div class="space-y-1.5">
                 <div class="flex justify-between items-center px-1">
                     <span class="text-[9px] md:text-xs font-black uppercase text-slate-400 tracking-wider">Categorías de Streaming</span>
@@ -233,7 +233,7 @@
                 <div id="grid-plataformas-fijas" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2"></div>
             </div>
 
-            <!-- 3. BUSCADOR GLOBAL Y EXPORTADOR EXCEL -->
+            <!-- 3. BUSCADOR GLOBAL Y EXPORTADOR -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div class="md:col-span-2 relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
@@ -271,7 +271,7 @@
         </nav>
     </div>
 
-    <!-- ==================== MODAL: REGISTRAR O EDITAR VENTA ==================== -->
+    <!-- MODAL: REGISTRAR O EDITAR VENTA -->
     <div id="modal-formulario-venta" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl overflow-y-auto max-h-[92vh]">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
@@ -343,13 +343,13 @@
                 </div>
 
                 <button type="submit" id="form-btn-submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-2.5 rounded-xl uppercase tracking-wider text-xs shadow-lg shadow-purple-600/30">
-                    Guardar Venta 🚀
+                    Guardar y Enviar Acceso 🚀
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- ==================== MODAL: PROVEEDORES ==================== -->
+    <!-- MODAL: PROVEEDORES -->
     <div id="modal-proveedores" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl overflow-y-auto max-h-[92vh]">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
@@ -425,7 +425,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL: NUEVA PLATAFORMA (+) ==================== -->
+    <!-- MODAL: NUEVA PLATAFORMA (+) -->
     <div id="modal-nueva-plataforma" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-xs rounded-3xl p-5 space-y-3 shadow-2xl">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
@@ -446,7 +446,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL: REGISTRAR / EDITAR VENDEDOR ==================== -->
+    <!-- MODAL: REGISTRAR / EDITAR VENDEDOR -->
     <div id="modal-vendedor-master" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl overflow-y-auto max-h-[92vh]">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
@@ -512,7 +512,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL: CAJA / COBRANZA ==================== -->
+    <!-- MODAL: CAJA / COBRANZA -->
     <div id="modal-caja-master" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
@@ -543,7 +543,7 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL: MI PERFIL / CAMBIO DE CLAVE ==================== -->
+    <!-- MODAL: MI PERFIL / CAMBIO DE CLAVE -->
     <div id="modal-mi-perfil" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-xs rounded-3xl p-5 space-y-3.5 shadow-2xl">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
@@ -631,25 +631,19 @@
             return window.location.origin + window.location.pathname;
         }
 
-        async function despacharCompartirTextoUniversal(telefono, mensajeTexto) {
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: 'TCL Sistema Streaming 2026',
-                        text: mensajeTexto
-                    });
-                    return;
-                } catch(e) {}
-            }
-            let clean = String(telefono || '').replace(/\D/g, '');
-            if (clean.length === 10 && !clean.startsWith('58')) clean = '58' + clean;
-            window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${encodeURIComponent(mensajeTexto)}`, '_blank');
-        }
-
+        // ================= CANAL DIRECTO A WHATSAPP DEL CLIENTE =================
         function abrirWhatsAppDirecto(tlf) {
             let clean = String(tlf || '').replace(/\D/g, '');
-            if (clean.length === 10 && !clean.startsWith('58')) clean = '58' + clean;
+            if (clean.length === 11 && clean.startsWith('0')) clean = '58' + clean.substring(1);
+            else if (clean.length === 10) clean = '58' + clean;
             window.open(`https://api.whatsapp.com/send?phone=${clean}`, '_blank');
+        }
+
+        function abrirWhatsAppConMensaje(tlf, texto) {
+            let clean = String(tlf || '').replace(/\D/g, '');
+            if (clean.length === 11 && clean.startsWith('0')) clean = '58' + clean.substring(1);
+            else if (clean.length === 10) clean = '58' + clean;
+            window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${encodeURIComponent(texto)}`, '_blank');
         }
 
         function reiniciarTemporizadorInactividad() {
@@ -911,8 +905,8 @@
                                 <button onclick="entrarComoAsistente('${v.id}')" title="Entrar a su panel" class="bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                     <i class="fa-solid fa-eye text-[10px]"></i> Ver
                                 </button>
-                                <button onclick="despacharCredencialesRevendedor('${v.id}')" title="Enviar credenciales y link" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
-                                    <i class="fa-solid fa-share-nodes text-[10px]"></i> Enviar
+                                <button onclick="despacharCredencialesRevendedor('${v.id}')" title="Enviar credenciales directo" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <i class="fa-brands fa-whatsapp text-xs"></i> Enviar
                                 </button>
                                 <button onclick="abrirModalCaja('${v.id}')" title="Cobro de caja" class="bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 text-amber-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                     <i class="fa-solid fa-cash-register text-[10px]"></i> Caja
@@ -1067,7 +1061,7 @@
                         `🏛️ *TCL SISTEMA STREAMING 2026 ES UN SISTEMA DE TUCOCEL C.A. DESARROLLADO POR PUBLITASAMK (AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.)*\n` +
                         `📞 Soporte Técnico Oficial Único: 0424-7357549`;
 
-            despacharCompartirTextoUniversal(v.telefono, msg);
+            abrirWhatsAppConMensaje(v.telefono, msg);
         }
 
         function abrirModalCaja(id) {
@@ -1326,10 +1320,10 @@
                         </div>
 
                         <div class="grid grid-cols-5 gap-1 pt-2 border-t border-neutral-800/60">
-                            <button onclick="enviarAcceso('${item.id}')" title="Enviar credenciales" class="bg-purple-950/70 hover:bg-purple-900 border border-purple-500/40 text-purple-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                            <button onclick="enviarAcceso('${item.id}')" title="Enviar ficha al WhatsApp del cliente" class="bg-purple-950/70 hover:bg-purple-900 border border-purple-500/40 text-purple-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-key text-[10px]"></i> Clave
                             </button>
-                            <button onclick="enviarCobro('${item.id}')" title="Enviar recordatorio cobro" class="bg-amber-950/70 hover:bg-amber-900 border border-amber-500/40 text-amber-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                            <button onclick="enviarCobro('${item.id}')" title="Enviar cobro al WhatsApp del cliente" class="bg-amber-950/70 hover:bg-amber-900 border border-amber-500/40 text-amber-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-bell text-[10px]"></i> Cobrar
                             </button>
                             <button onclick="renovarUnMes('${item.id}')" title="Renovar +1 mes anclado" class="bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
@@ -1338,7 +1332,7 @@
                             <button onclick="abrirEditorModal('${item.id}')" title="Editar cuenta" class="bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit
                             </button>
-                            <button onclick="abrirWhatsAppDirecto('${item.tlf}')" title="WhatsApp directo" class="bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-500/30 text-emerald-400 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                            <button onclick="abrirWhatsAppDirecto('${item.tlf}')" title="Chat directo al WhatsApp del cliente" class="bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-500/30 text-emerald-400 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                 <i class="fa-brands fa-whatsapp text-xs"></i> Chat
                             </button>
                         </div>
@@ -1347,6 +1341,7 @@
             });
         }
 
+        // ================= DISPARO DIRECTO A WHATSAPP DEL CLIENTE =================
         function enviarAcceso(id) {
             const v = dbVentas.find(x => x.id === id);
             if (!v) return;
@@ -1362,7 +1357,8 @@
                    `• Esta suscripción es un alquiler mensual. Para renovar debes pagar 1 día antes del corte.\n` +
                    `• No cambiar correo ni contraseña.\n` +
                    `• Ingresar únicamente a tu perfil asignado. ¡Disfruta tu servicio!`;
-            despacharCompartirTextoUniversal(v.tlf, msg);
+            
+            abrirWhatsAppConMensaje(v.tlf, msg);
         }
 
         function enviarCobro(id) {
@@ -1373,7 +1369,8 @@
                         `Hola *${v.cliente}*, te recordamos que tu suscripción vence el *${fVenc}*.\n\n` +
                         `Por favor gestiona tu renovación con anticipación para mantener tu pantalla activa sin interrupciones.\n\n` +
                         `¡Quedamos atentos a tu comprobante de pago! 🫡`;
-            despacharCompartirTextoUniversal(v.tlf, msg);
+            
+            abrirWhatsAppConMensaje(v.tlf, msg);
         }
 
         function renovarUnMes(id) {
@@ -1402,7 +1399,7 @@
 
         function abrirModalVenta() {
             document.getElementById('modal-form-titulo').innerHTML = `<i class="fa-solid fa-cart-shopping text-purple-400"></i> Registrar Venta`;
-            document.getElementById('form-btn-submit').innerText = 'Guardar Venta 🚀';
+            document.getElementById('form-btn-submit').innerText = 'Guardar y Enviar Acceso 🚀';
             document.getElementById('form-edit-id').value = '';
             document.getElementById('box-selector-cuenta-madre').classList.remove('hidden');
             actualizarSelectCuentasMadre();
@@ -1475,6 +1472,7 @@
                     fecha: document.getElementById('form-fecha').value || getHoyISO()
                 };
                 dbVentas.unshift(nueva);
+                // Apertura inmediata del chat de WhatsApp con el número del cliente
                 enviarAcceso(nueva.id);
             }
 
@@ -1690,7 +1688,8 @@
                         `🔑 *Clave:* \`${c.clave}\`\n` +
                         `📅 *Vence con usted el:* ${fVenc}\n\n` +
                         `Por favor su valioso apoyo revisando o reactivando el acceso a la brevedad posible. ¡Muchas gracias! 🙏`;
-            despacharCompartirTextoUniversal(c.tlfProveedor, msg);
+            
+            abrirWhatsAppConMensaje(c.tlfProveedor, msg);
         }
 
         function alternarAcordeonProveedor(nomProv) {
@@ -1778,10 +1777,10 @@
                                 </div>
 
                                 <div class="grid grid-cols-4 gap-1 pt-1 border-t border-neutral-800/80">
-                                    <button onclick="notificarFallaProveedor('${cta.id}')" title="Notificar falla" class="bg-red-950/80 hover:bg-red-900 border border-red-500/40 text-red-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <button onclick="notificarFallaProveedor('${cta.id}')" title="Notificar falla al proveedor" class="bg-red-950/80 hover:bg-red-900 border border-red-500/40 text-red-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                         <i class="fa-solid fa-triangle-exclamation text-[9px]"></i> Falla
                                     </button>
-                                    <button onclick="abrirWhatsAppDirecto('${cta.tlfProveedor}')" title="Chat WhatsApp" class="bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <button onclick="abrirWhatsAppDirecto('${cta.tlfProveedor}')" title="Chat WhatsApp con proveedor" class="bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                         <i class="fa-brands fa-whatsapp text-xs"></i> Chat
                                     </button>
                                     <button onclick="editarCuentaProveedor('${cta.id}')" title="Editar cuenta" class="bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
@@ -1835,6 +1834,7 @@
             cerrarModalNuevaPlat();
         }
 
+        // ================= INICIALIZACIÓN CON SOPORTE SLUG =================
         window.onload = () => {
             const hashSlug = window.location.hash ? window.location.hash.replace('#', '').trim().toLowerCase() : '';
 
