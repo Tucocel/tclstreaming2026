@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#07070d">
+    <title>TCL Sistema Streaming 2026 — Master Pro</title>
+    
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22TCL%20Sistema%20Streaming%202026%22%2C%22short_name%22%3A%22TCL%20Streaming%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2307070d%22%2C%22theme_color%22%3A%22%2307070d%22%7D">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #07070d; color: #f8fafc; user-select: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .card-dark { background: #11111e; border: 1px solid rgba(255, 255, 255, 0.07); }
+        @keyframes pulsoAlerta {
+            0%, 100% { border-color: rgba(245, 158, 11, 0.9); box-shadow: 0 0 10px rgba(245, 158, 11, 0.35); }
+            50% { border-color: rgba(245, 158, 11, 0.2); box-shadow: none; }
+        }
+        .anim-alerta { animation: pulsoAlerta 1.5s infinite ease-in-out; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-start pb-24 no-scrollbar">
+
+    <!-- ==================== CÁPSULA FLOTANTE DE SALIR ÚNICA ==================== -->
+    <div id="capsula-flotante-salir" class="hidden fixed bottom-16 right-4 z-50">
+        <button onclick="cerrarSesion()" title="Cerrar Sesión" class="bg-[#161626]/90 hover:bg-red-950 border border-neutral-700/80 hover:border-red-500/80 text-slate-300 hover:text-white px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-2xl flex items-center gap-1.5 transition-all active:scale-95">
+            <i class="fa-solid fa-power-off text-red-500 text-xs"></i>
+            <span>Salir</span>
+        </button>
+    </div>
+
+    <!-- ==================== SPLASH SCREEN DE BIENVENIDA (2.5s) ==================== -->
+    <div id="splash-screen" class="fixed inset-0 bg-[#07070d] z-[9999] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-700 hidden">
+        <div class="space-y-4 max-w-xs">
+            <div id="splash-ico-box" class="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto text-white text-3xl shadow-2xl shadow-purple-600/50 animate-bounce">
+                <i class="fa-solid fa-play"></i>
+            </div>
+            <div class="space-y-1">
+                <span class="text-[9px] font-black uppercase tracking-[0.25em] text-purple-400 block">SISTEMA OFICIAL 2026</span>
+                <h2 id="splash-titulo" class="text-base font-black text-white uppercase tracking-tight">Cargando Sistema...</h2>
+                <p id="splash-subtitulo" class="text-[11px] text-slate-400 font-medium">Validando credenciales y preparando panel...</p>
+            </div>
+            <div class="w-24 h-1 bg-neutral-900 mx-auto rounded-full overflow-hidden">
+                <div class="w-full h-full bg-gradient-to-r from-purple-500 to-emerald-400 animate-pulse"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== BANNER FLOTANTE: ASISTENCIA MASTER ESTILIZADO ==================== -->
+    <div id="banner-impersonacion" class="hidden bg-[#161208] border-b border-amber-500/40 text-amber-300 px-4 py-1.5 sticky top-0 z-50 flex justify-between items-center text-xs backdrop-blur-md">
+        <div class="flex items-center gap-2 truncate">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            <span class="text-[10px] font-black uppercase tracking-wider truncate">Modo Asistencia: <b id="lbl-impersonado-nombre" class="text-white">CLIENTE</b></span>
+        </div>
+        <button onclick="salirModoAsistencia()" class="bg-amber-500 hover:bg-amber-400 text-neutral-950 px-2.5 py-1 rounded-lg text-[9px] uppercase font-black tracking-wider transition-all shadow">
+            Volver a Master 🔙
+        </button>
+    </div>
+
+    <!-- ==================== PANTALLA 1: LOGIN ==================== -->
+    <div id="vista-login" class="min-h-screen flex flex-col justify-center items-center p-4">
+        <div class="card-dark w-full max-w-sm rounded-3xl p-6 sm:p-7 space-y-4 shadow-2xl border border-neutral-800">
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto text-white text-2xl shadow-xl shadow-purple-600/30">
+                    <i class="fa-solid fa-play"></i>
+                </div>
+                <h2 class="text-lg font-black uppercase tracking-wider text-white">StreamPanel <span class="text-purple-400">Master</span></h2>
+                <p id="login-subtitulo-contexto" class="text-[10px] text-slate-400 leading-tight">Plataforma Ejecutiva de Control, Almacén y Cobranza</p>
+            </div>
+
+            <form onsubmit="ejecutarLogin(event)" autocomplete="off" class="space-y-3 pt-1 text-xs font-bold">
+                <div>
+                    <label class="text-[8.5px] text-slate-400 uppercase block mb-1">Usuario</label>
+                    <input type="text" id="login-user" required autocomplete="off" placeholder="Ej: usuario" class="w-full bg-[#0a0a12] border border-neutral-800 text-white px-3 py-2.5 rounded-xl font-mono text-xs focus:outline-none focus:border-purple-500 uppercase">
+                </div>
+                <div>
+                    <label class="text-[8.5px] text-slate-400 uppercase block mb-1">Contraseña</label>
+                    <input type="password" id="login-pass" required autocomplete="new-password" placeholder="••••••••" class="w-full bg-[#0a0a12] border border-neutral-800 text-white px-3 py-2.5 rounded-xl font-mono text-xs focus:outline-none focus:border-purple-500">
+                </div>
+
+                <div class="flex items-center justify-between text-[9.5px] text-slate-400 px-0.5">
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" id="chk-recordar-sesion" class="rounded accent-purple-600 w-3.5 h-3.5">
+                        <span>Mantener abierta</span>
+                    </label>
+                    <span class="text-slate-500">Auto-cierre: 1 hora</span>
+                </div>
+
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-3 rounded-xl uppercase tracking-wider text-xs shadow-lg shadow-purple-600/30">
+                    Desbloquear Sistema 🚀
+                </button>
+            </form>
+
+            <div class="border-t border-neutral-800/80 pt-3 text-center space-y-1">
+                <span class="text-[8.5px] text-amber-400 font-black uppercase tracking-wider block">⚠️ SOPORTE TÉCNICO OFICIAL ÚNICO</span>
+                <p class="text-[9.5px] text-slate-400 font-mono">Dudas o fallas: <b>0424-7357549</b></p>
+                <p class="text-[8px] text-slate-500 uppercase tracking-widest pt-1">TCL SISTEMA STREAMING 2026 &bull; TUCOCEL C.A.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== PANTALLA 2: CORTE / PAUSADO / FIN PRUEBA ==================== -->
+    <div id="vista-bloqueo-pausado" class="hidden min-h-screen flex flex-col justify-center items-center p-4 text-center">
+        <div class="card-dark w-full max-w-sm rounded-3xl p-6 space-y-4 border-2 border-red-500/60 shadow-2xl">
+            <div class="w-14 h-14 bg-red-950/60 border border-red-500/50 rounded-2xl flex items-center justify-center mx-auto text-red-500 text-2xl animate-pulse">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div class="space-y-1.5">
+                <h3 id="txt-titulo-bloqueo" class="text-base font-black text-white uppercase tracking-tight">Acceso Pausado</h3>
+                <p id="txt-motivo-bloqueo" class="text-xs text-slate-400 font-medium leading-relaxed">
+                    Tu membresía o período de prueba ha finalizado. Tus datos, clientes y cuentas se mantienen seguros.
+                </p>
+            </div>
+            <div class="bg-[#0a0a12] p-2.5 rounded-xl border border-neutral-800 text-[10px] text-slate-300 font-mono">
+                <span>Canal de Soporte Directo:</span>
+                <strong class="text-emerald-400 block text-xs mt-0.5">0424-7357549</strong>
+            </div>
+            <button onclick="contactarSoporteMaster()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl uppercase tracking-wider text-xs shadow-lg flex items-center justify-center gap-2">
+                <i class="fa-brands fa-whatsapp text-sm"></i> Contactar Administrador
+            </button>
+            <button onclick="cerrarSesion()" class="text-slate-500 text-[10px] uppercase font-bold hover:text-white">
+                Cerrar Sesión
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== PANTALLA 3: CONSOLA MASTER (SUPERADMIN) ==================== -->
+    <div id="vista-master" class="hidden flex flex-col w-full">
+        <header class="bg-[#0e0e1a]/95 border-b border-neutral-800 px-4 py-3 sticky top-0 z-40 backdrop-blur-md flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center text-neutral-950 font-black text-sm shadow">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <div>
+                    <h1 class="text-xs font-black tracking-wider uppercase text-white">Panel <span class="text-amber-400">Master</span></h1>
+                    <span class="text-[8.5px] text-slate-400 font-bold block leading-none">SuperAdmin Central</span>
+                </div>
+            </div>
+            <div class="flex gap-2 items-center">
+                <button onclick="abrirModalNuevoVendedor()" class="bg-amber-500 hover:bg-amber-400 text-neutral-950 font-black text-xs px-3 py-1.5 rounded-xl uppercase tracking-wider shadow">
+                    <i class="fa-solid fa-user-plus"></i> <span>Vendedor</span>
+                </button>
+                <button onclick="cerrarSesion()" title="Cerrar Sesión Master" class="bg-red-950/40 border border-red-500/40 hover:bg-red-900 text-red-400 font-black px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1 transition-all">
+                    <i class="fa-solid fa-power-off text-[11px]"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="p-3.5 max-w-5xl mx-auto w-full space-y-4">
+            <div class="grid grid-cols-3 gap-2 text-center font-mono">
+                <div class="card-dark p-3 rounded-2xl">
+                    <span class="text-[8px] md:text-[9.5px] text-slate-400 uppercase font-sans font-bold block">Vendedores</span>
+                    <span id="master-met-total" class="text-base md:text-xl font-black text-amber-400">0</span>
+                </div>
+                <div class="card-dark p-3 rounded-2xl">
+                    <span class="text-[8px] md:text-[9.5px] text-slate-400 uppercase font-sans font-bold block">Cobrar Hoy</span>
+                    <span id="master-met-cobrar" class="text-base md:text-xl font-black text-yellow-400">0</span>
+                </div>
+                <div class="card-dark p-3 rounded-2xl">
+                    <span class="text-[8px] md:text-[9.5px] text-slate-400 uppercase font-sans font-bold block">Pausados</span>
+                    <span id="master-met-pausados" class="text-base md:text-xl font-black text-red-500">0</span>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center px-1">
+                <span id="master-lbl-seccion-actual" class="text-[9px] md:text-xs font-black uppercase text-slate-400 tracking-wider">Vendedores Activos</span>
+                <button onclick="alternarBovedaAnuladosMaster()" id="btn-toggle-boveda" class="bg-neutral-900 border border-neutral-800 hover:border-amber-500 text-amber-400 text-[8.5px] md:text-xs font-black px-3 py-1.5 rounded-xl uppercase tracking-wider">
+                    📂 Ver Bóveda Anulados
+                </button>
+            </div>
+
+            <div class="space-y-1">
+                <input type="text" id="master-in-buscar" onkeyup="renderizarBandejaMaster()" placeholder="Buscar vendedor, usuario o teléfono..." class="w-full bg-[#11111e] border border-neutral-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-amber-500 font-bold uppercase">
+            </div>
+
+            <div id="contenedor-vendedores-master" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </main>
+    </div>
+
+    <!-- ==================== PANTALLA 4: DASHBOARD VENDEDOR ==================== -->
+    <div id="vista-vendedor" class="hidden flex flex-col w-full">
+        <header class="bg-[#0e0e1a]/95 border-b border-neutral-800/80 px-4 py-3 sticky top-0 z-40 backdrop-blur-md flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white text-sm font-black shadow-lg shadow-purple-600/30">
+                    <i class="fa-solid fa-play"></i>
+                </div>
+                <div>
+                    <h1 class="text-xs md:text-sm font-black tracking-wider uppercase text-white" id="header-nombre-negocio">StreamPanel <span class="text-purple-400">Pro</span></h1>
+                    <span id="header-badge-dias-licencia" class="text-[8.5px] md:text-[9.5px] font-mono font-bold text-emerald-400 block leading-none">30 Días de Membresía</span>
+                </div>
+            </div>
+            <div class="flex gap-2 items-center">
+                <button onclick="abrirModalProveedores()" class="bg-neutral-800 hover:bg-neutral-700 text-slate-200 font-black text-xs px-2.5 py-1.5 rounded-xl uppercase tracking-wider flex items-center gap-1 border border-neutral-700">
+                    <i class="fa-solid fa-server text-[11px] text-purple-400"></i> <span class="text-[10px]">Proveedores</span>
+                </button>
+                <button onclick="abrirModalVenta()" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-xs px-3 py-1.5 rounded-xl uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-purple-600/30">
+                    <i class="fa-solid fa-plus"></i> <span>Venta</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="p-3.5 max-w-5xl mx-auto w-full space-y-4">
+            <!-- 1. MÉTRICAS -->
+            <div class="grid grid-cols-4 gap-2">
+                <div onclick="filtrarPorEstado('ACTIVO')" class="card-dark rounded-2xl p-2.5 md:p-3.5 text-center cursor-pointer hover:border-purple-500/50 transition-all">
+                    <span class="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase block">Activos</span>
+                    <span id="met-activos" class="text-base md:text-2xl font-black text-emerald-400 font-mono">0</span>
+                </div>
+                <div onclick="filtrarPorEstado('ALERTA')" class="card-dark rounded-2xl p-2.5 md:p-3.5 text-center cursor-pointer hover:border-amber-500/50 transition-all">
+                    <span class="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase block">Cobrar</span>
+                    <span id="met-cobrar" class="text-base md:text-2xl font-black text-amber-400 font-mono">0</span>
+                </div>
+                <div onclick="filtrarPorEstado('VENCIDO')" class="card-dark rounded-2xl p-2.5 md:p-3.5 text-center cursor-pointer hover:border-red-500/50 transition-all">
+                    <span class="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase block">Vencidos</span>
+                    <span id="met-vencidos" class="text-base md:text-2xl font-black text-red-500 font-mono">0</span>
+                </div>
+                <div onclick="filtrarPorEstado('TODOS')" class="card-dark rounded-2xl p-2.5 md:p-3.5 text-center cursor-pointer hover:border-purple-500/50 transition-all">
+                    <span class="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase block">Total</span>
+                    <span id="met-total" class="text-base md:text-2xl font-black text-purple-400 font-mono">0</span>
+                </div>
+            </div>
+
+            <!-- 2. SERVICIOS FIJOS + CHISMOSEADOR -->
+            <div class="space-y-1.5">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-[9px] md:text-xs font-black uppercase text-slate-400 tracking-wider">Categorías de Streaming</span>
+                    <span id="lbl-filtro-activo" class="text-[9px] md:text-xs font-bold text-purple-400 font-mono uppercase">Panel Plegado</span>
+                </div>
+                <div id="grid-plataformas-fijas" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2"></div>
+            </div>
+
+            <!-- 3. BUSCADOR GLOBAL Y EXPORTADOR EXCEL -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div class="md:col-span-2 relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
+                    <input type="text" id="in-busqueda" onkeyup="alEscribirBusqueda()" placeholder="Buscar cliente, teléfono o correo..." class="w-full bg-[#11111e] border border-neutral-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 font-bold uppercase">
+                </div>
+                <button onclick="exportarClientesExcelCSV()" class="w-full bg-neutral-900 border border-neutral-800 hover:border-emerald-500/50 text-slate-300 font-black py-2 rounded-xl uppercase text-[9.5px] md:text-xs flex items-center justify-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-file-excel text-emerald-400"></i> Exportar a Excel (.CSV)
+                </button>
+            </div>
+
+            <!-- 4. BANDEJA DE CLIENTES -->
+            <div id="contenedor-asignaciones" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </main>
+
+        <!-- PIE INSTITUCIONAL -->
+        <footer class="text-center p-4 border-t border-neutral-900 space-y-0.5 mb-14">
+            <p class="text-[8.5px] md:text-[10px] text-slate-300 font-bold uppercase">TCL SISTEMA STREAMING 2026 ES UN SISTEMA DE TUCOCEL C.A.</p>
+            <p class="text-[7.5px] md:text-[9px] text-slate-500 uppercase">DESARROLLADO POR PUBLITASAMK (AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.)</p>
+        </footer>
+
+        <!-- NAVEGACIÓN INFERIOR VENDEDOR -->
+        <nav class="fixed bottom-0 inset-x-0 bg-[#0e0e1a]/95 border-t border-neutral-800/80 px-6 py-2.5 flex justify-around items-center z-40 backdrop-blur-md">
+            <button onclick="plegarPanel()" class="text-purple-400 flex flex-col items-center gap-0.5 text-[9px] font-black uppercase">
+                <i class="fa-solid fa-users-viewfinder text-base"></i>
+                <span>Ventas</span>
+            </button>
+            <button onclick="abrirModalProveedores()" class="text-slate-500 flex flex-col items-center gap-0.5 text-[9px] font-black uppercase">
+                <i class="fa-solid fa-layer-group text-base"></i>
+                <span>Proveedores</span>
+            </button>
+            <button onclick="abrirModalMiPerfil()" class="text-slate-500 flex flex-col items-center gap-0.5 text-[9px] font-black uppercase">
+                <i class="fa-solid fa-user-gear text-base"></i>
+                <span>Mi Clave</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- ==================== MODAL: REGISTRAR O EDITAR VENTA ==================== -->
+    <div id="modal-formulario-venta" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
+        <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl overflow-y-auto max-h-[92vh]">
+            <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
+                <h3 id="modal-form-titulo" class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-cart-shopping text-purple-400"></i> Registrar Venta
+                </h3>
+                <button onclick="cerrarModalVenta()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <input type="hidden" id="form-edit-id" value="">
+
+            <div id="box-selector-cuenta-madre" class="space-y-1 bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800">
+                <label class="text-[8.5px] text-purple-400 uppercase font-black block">Cuenta de Proveedor Guardada</label>
+                <select id="form-select-cuenta-madre" onchange="alSeleccionarCuentaMadre()" class="w-full bg-[#11111e] border border-neutral-700 text-white p-2 rounded-xl text-[10.5px] focus:outline-none uppercase font-mono font-bold">
+                    <option value="MANUAL">✍️ Escribir datos manualmente</option>
+                </select>
+            </div>
+
+            <form onsubmit="guardarFormularioVenta(event)" autocomplete="off" class="space-y-2.5 text-xs font-bold">
+                <div>
+                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Servicio</label>
+                    <select id="form-servicio" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl focus:outline-none uppercase"></select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Correo / Cuenta ID</label>
+                        <input type="text" id="form-correo" required autocomplete="off" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Contraseña</label>
+                        <input type="text" id="form-clave" required autocomplete="off" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Perfil (Pantalla)</label>
+                        <input type="text" id="form-perfil" placeholder="Ej: Perfil 2" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl uppercase text-[11px] focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">PIN</label>
+                        <input type="text" id="form-pin" placeholder="1234" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="border-t border-neutral-800/80 pt-2 space-y-2">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nombre Cliente</label>
+                            <input type="text" id="form-cliente" required placeholder="Carlos Perez" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl uppercase text-[11px] focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">WhatsApp</label>
+                            <input type="text" id="form-tlf" required placeholder="0414..." class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Duración (Meses libres)</label>
+                            <input type="number" id="form-meses" min="1" step="1" value="1" required class="w-full bg-[#0a0a12] border border-neutral-800 text-white font-mono p-2 rounded-xl text-[11px] focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[8.5px] text-purple-400 uppercase block mb-0.5">Fecha Activación</label>
+                            <input type="date" id="form-fecha" class="w-full bg-[#0a0a12] border border-purple-500/40 text-purple-300 font-mono p-2 rounded-xl text-[11px] focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="form-btn-submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-2.5 rounded-xl uppercase tracking-wider text-xs shadow-lg shadow-purple-600/30">
+                    Guardar Venta 🚀
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: PROVEEDORES ==================== -->
+    <div id="modal-proveedores" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
+        <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl overflow-y-auto max-h-[92vh]">
+            <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
+                <h3 class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-server text-purple-400"></i> Cuentas de Proveedor
+                </h3>
+                <button onclick="cerrarModalProveedores()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <input type="hidden" id="cta-edit-id" value="">
+
+            <form onsubmit="guardarCuentaProveedor(event)" autocomplete="off" class="space-y-2 text-xs font-bold bg-[#0a0a12] p-3 rounded-2xl border border-neutral-800">
+                <span id="lbl-prov-modo" class="text-[8.5px] font-black uppercase text-purple-400 block mb-0.5">Registrar Nueva Cuenta Comprada:</span>
+
+                <div>
+                    <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Servicio</label>
+                    <select id="cta-servicio" class="w-full bg-[#11111e] border border-neutral-800 text-white p-1.5 rounded-xl focus:outline-none uppercase text-[11px]"></select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Correo Maestro / ID</label>
+                        <input type="text" id="cta-correo" required placeholder="cuenta@correo.com" class="w-full bg-[#11111e] border border-neutral-800 text-white p-1.5 rounded-xl font-mono text-[10.5px] focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Contraseña Maestra</label>
+                        <input type="text" id="cta-clave" required placeholder="Clave2026*" class="w-full bg-[#11111e] border border-neutral-800 text-white p-1.5 rounded-xl font-mono text-[10.5px] focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Proveedor</label>
+                        <input type="text" id="cta-proveedor" required placeholder="Ej: Juan Proveedor" class="w-full bg-[#11111e] border border-neutral-800 text-white p-1.5 rounded-xl uppercase text-[10.5px] focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">WhatsApp Proveedor</label>
+                        <input type="text" id="cta-tlf-prov" required placeholder="0414..." class="w-full bg-[#11111e] border border-neutral-800 text-white p-1.5 rounded-xl font-mono text-[10.5px] focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Fecha Adquisición</label>
+                        <input type="date" id="cta-fecha" class="w-full bg-[#11111e] border border-neutral-800 text-slate-300 font-mono p-1.5 rounded-xl text-[10px] focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Duración (Meses libres)</label>
+                        <input type="number" id="cta-meses" min="1" step="1" value="1" required class="w-full bg-[#11111e] border border-neutral-800 text-white font-mono p-1.5 rounded-xl text-[10.5px] focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="flex gap-1.5 pt-1">
+                    <button type="button" id="cta-btn-cancelar" onclick="limpiarFormularioProveedor()" class="hidden w-1/3 bg-neutral-800 text-slate-300 font-bold py-1.5 rounded-xl uppercase text-[10px]">Cancelar</button>
+                    <button type="submit" id="cta-btn-submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2 rounded-xl uppercase tracking-wider text-[10.5px] shadow-md">
+                        Guardar Cuenta 💾
+                    </button>
+                </div>
+            </form>
+
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                <input type="text" id="in-busqueda-prov" onkeyup="renderizarListaProveedores()" placeholder="Buscar por proveedor o correo..." class="w-full bg-[#0a0a12] border border-neutral-800 rounded-xl pl-8 pr-3 py-1.5 text-[10.5px] text-white focus:outline-none focus:border-purple-500 font-bold uppercase">
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-[8.5px] font-black uppercase text-slate-500 block">Proveedores Registrados</span>
+                    <span id="lbl-total-cuentas-prov" class="text-[9px] font-mono text-purple-400 font-bold">0 Cuentas</span>
+                </div>
+                <div id="contenedor-acordeon-proveedores" class="space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: NUEVA PLATAFORMA (+) ==================== -->
+    <div id="modal-nueva-plataforma" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
+        <div class="bg-[#11111e] border border-neutral-800 w-full max-w-xs rounded-3xl p-5 space-y-3 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
+                <h3 class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-plus text-purple-400"></i> Nueva Plataforma
+                </h3>
+                <button onclick="cerrarModalNuevaPlat()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="guardarNuevaPlataforma(event)" class="space-y-2.5 text-xs font-bold">
+                <div>
+                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nombre del Servicio</label>
+                    <input type="text" id="nueva-plat-nombre" required placeholder="Ej: Paramount+, Crunchyroll..." class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl focus:outline-none">
+                </div>
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-2 rounded-xl uppercase tracking-wider text-[11px]">
+                    Agregar al Tablero ➕
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: REGISTRAR / EDITAR VENDEDOR ==================== -->
+    <div id="modal-vendedor-master" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
+        <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl overflow-y-auto max-h-[92vh]">
+            <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
+                <h3 id="modal-vendedor-master-titulo" class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-plus text-amber-400"></i> Registrar Vendedor
+                </h3>
+                <button onclick="cerrarModalNuevoVendedor()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <input type="hidden" id="master-edit-vendedor-id" value="">
+
+            <form onsubmit="guardarVendedorMaster(event)" autocomplete="off" class="space-y-2.5 text-xs font-bold">
+                <div>
+                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nombre del Comercio / Revendedor</label>
+                    <input type="text" id="m-vendedor-nombre" onkeyup="alEscribirNombreComercioSlug()" required placeholder="Ej: Streaming Rubio" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl uppercase text-[11px] focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="text-[8.5px] text-amber-400 uppercase block mb-0.5">Enlace Personalizado Autogenerado</label>
+                    <input type="text" id="m-vendedor-slug" readonly class="w-full bg-[#07070d] border border-amber-500/40 text-amber-300 font-mono p-2 rounded-xl text-[10px] focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Usuario de Acceso</label>
+                        <input type="text" id="m-vendedor-user" required placeholder="streamingrubio" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none uppercase">
+                    </div>
+                    <div>
+                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Contraseña</label>
+                        <input type="text" id="m-vendedor-pass" required placeholder="Clave123*" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">WhatsApp</label>
+                        <input type="text" id="m-vendedor-tlf" required placeholder="0414..." class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Modalidad de Tiempo</label>
+                        <select id="m-vendedor-tipo-tiempo" onchange="alCambiarTipoTiempoVendedor()" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl text-[10.5px] focus:outline-none">
+                            <option value="MESES">Membresía (Meses)</option>
+                            <option value="DIAS_PRUEBA">Cuenta Demo (Días)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label id="lbl-m-tiempo-valor" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Meses Contratados</label>
+                        <input type="number" id="m-vendedor-tiempo-valor" min="1" step="1" value="1" required class="w-full bg-[#0a0a12] border border-neutral-800 text-white font-mono p-2 rounded-xl text-[11px] focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[8.5px] text-amber-400 uppercase block mb-0.5">Fecha Activación</label>
+                        <input type="date" id="m-vendedor-fecha" class="w-full bg-[#0a0a12] border border-amber-500/40 text-amber-300 font-mono p-2 rounded-xl text-[11px] focus:outline-none">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-black py-2.5 rounded-xl uppercase tracking-wider text-xs shadow">
+                    Guardar y Activar Vendedor 💾
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: CAJA / COBRANZA ==================== -->
+    <div id="modal-caja-master" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
+        <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
+                <h3 class="font-black text-xs uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-cash-register"></i> Cobro de Mensualidad
+                </h3>
+                <button onclick="cerrarModalCajaMaster()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" id="caja-vendedor-id">
+            <div class="bg-[#0a0a12] p-3 rounded-2xl border border-neutral-800 text-xs space-y-1">
+                <span class="text-slate-500 text-[9px] uppercase block">Revendedor:</span>
+                <span id="caja-lbl-nombre" class="font-black text-white block truncate uppercase">NOMBRE</span>
+                <span id="caja-lbl-vencimiento" class="text-amber-400 font-mono text-[10px] font-bold block">Vence el: 00/00/0000</span>
+            </div>
+            <div class="space-y-2 text-xs font-bold">
+                <div>
+                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Meses a Extender</label>
+                    <input type="number" id="caja-in-meses" min="1" step="1" value="1" class="w-full bg-[#0a0a12] border border-neutral-800 text-white font-mono p-2 rounded-xl text-xs focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Monto Pagado (USD / USDT)</label>
+                    <input type="text" id="caja-in-monto" placeholder="Ej: 10 USDT" class="w-full bg-[#0a0a12] border border-neutral-800 text-emerald-400 font-mono p-2 rounded-xl text-xs focus:outline-none">
+                </div>
+                <button onclick="confirmarPagoCajaMaster()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl uppercase tracking-wider text-xs shadow">
+                    Confirmar Cobro y Extender Licencia ⚡
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: MI PERFIL / CAMBIO DE CLAVE ==================== -->
+    <div id="modal-mi-perfil" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
+        <div class="bg-[#11111e] border border-neutral-800 w-full max-w-xs rounded-3xl p-5 space-y-3.5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
+                <h3 class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-key text-purple-400"></i> Cambiar Mi Clave
+                </h3>
+                <button onclick="cerrarModalMiPerfil()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="guardarNuevaClaveVendedor(event)" class="space-y-2.5 text-xs font-bold">
+                <div>
+                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nueva Contraseña</label>
+                    <input type="text" id="perfil-nueva-clave" required placeholder="Escribe tu nueva clave..." class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-xs focus:outline-none">
+                </div>
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-2.5 rounded-xl uppercase tracking-wider text-xs shadow-lg">
+                    Actualizar Contraseña 🔒
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT CENTRAL -->
+    <script>
+        const NUMERO_SOPORTE_OFICIAL = "04247357549";
+
+        let dbMasterVendedores = JSON.parse(localStorage.getItem('sp_master_vendedores')) || [];
+        let sesionActual = JSON.parse(sessionStorage.getItem('sp_sesion_activa')) || JSON.parse(localStorage.getItem('sp_sesion_persistente')) || null;
+        let esModoMasterImpersonacion = false;
+        let vendedorIdImpersonado = null;
+        let viendoBovedaAnulados = false;
+
+        let dbVentas = [];
+        let dbCuentas = [];
+        let catalogoServicios = ['Netflix', 'Disney+', 'Max', 'Prime Video', 'IPTV', 'Spotify'];
+
+        let filtroServicioActual = 'PLEGADO';
+        let filtroEstadoActual = 'TODOS';
+        let proveedorAcordeonAbierto = null;
+        let temporizadorInactividad = null;
+
+        function getHoyISO() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function calcularVencimientoExacto(fechaISO, meses, diasPrueba = 0) {
+            if (!fechaISO) return '';
+            const [y, m, d] = fechaISO.split('-').map(Number);
+            const fechaObj = new Date(y, m - 1, d);
+            if (diasPrueba > 0) {
+                fechaObj.setDate(fechaObj.getDate() + parseInt(diasPrueba));
+            } else {
+                fechaObj.setMonth(fechaObj.getMonth() + parseInt(meses || 1));
+                fechaObj.setDate(fechaObj.getDate() - 1);
+            }
+            const dd = String(fechaObj.getDate()).padStart(2, '0');
+            const mm = String(fechaObj.getMonth() + 1).padStart(2, '0');
+            return `${dd}/${mm}/${fechaObj.getFullYear()}`;
+        }
+
+        function calcularDiasRestantes(fechaISO, meses, diasPrueba = 0) {
+            if (!fechaISO) return 0;
+            const [y, m, d] = fechaISO.split('-').map(Number);
+            const venc = new Date(y, m - 1, d);
+            if (diasPrueba > 0) {
+                venc.setDate(venc.getDate() + parseInt(diasPrueba));
+            } else {
+                venc.setMonth(venc.getMonth() + parseInt(meses || 1));
+                venc.setDate(venc.getDate() - 1);
+            }
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+            venc.setHours(0,0,0,0);
+            return Math.ceil((venc.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+        }
+
+        function generarSlugLimpio(texto) {
+            return String(texto || '')
+                .toLowerCase()
+                .trim()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]/g, '');
+        }
+
+        function obtenerUrlBaseSistema() {
+            return window.location.origin + window.location.pathname;
+        }
+
+        async function despacharCompartirTextoUniversal(telefono, mensajeTexto) {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'TCL Sistema Streaming 2026',
+                        text: mensajeTexto
+                    });
+                    return;
+                } catch(e) {}
+            }
+            let clean = String(telefono || '').replace(/\D/g, '');
+            if (clean.length === 10 && !clean.startsWith('58')) clean = '58' + clean;
+            window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${encodeURIComponent(mensajeTexto)}`, '_blank');
+        }
+
+        function abrirWhatsAppDirecto(tlf) {
+            let clean = String(tlf || '').replace(/\D/g, '');
+            if (clean.length === 10 && !clean.startsWith('58')) clean = '58' + clean;
+            window.open(`https://api.whatsapp.com/send?phone=${clean}`, '_blank');
+        }
+
+        function reiniciarTemporizadorInactividad() {
+            if (temporizadorInactividad) clearTimeout(temporizadorInactividad);
+            temporizadorInactividad = setTimeout(() => {
+                alert("⏳ Sesión cerrada por inactividad (60 minutos sin movimiento).");
+                cerrarSesion();
+            }, 60 * 60 * 1000);
+        }
+
+        ['click', 'touchstart', 'keypress'].forEach(ev => {
+            window.addEventListener(ev, reiniciarTemporizadorInactividad, { passive: true });
+        });
+
+        function mostrarSplashScreen(titulo, subtitulo, callback) {
+            const sp = document.getElementById('splash-screen');
+            document.getElementById('splash-titulo').innerText = titulo;
+            document.getElementById('splash-subtitulo').innerText = subtitulo;
+            sp.classList.remove('hidden');
+            sp.style.opacity = '1';
+
+            setTimeout(() => {
+                sp.style.opacity = '0';
+                setTimeout(() => {
+                    sp.classList.add('hidden');
+                    if (callback) callback();
+                }, 700);
+            }, 2500);
+        }
+
+        function ejecutarLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-user').value.trim().toLowerCase();
+            const p = document.getElementById('login-pass').value.trim();
+            const recordar = document.getElementById('chk-recordar-sesion').checked;
+
+            if (u === "tucocel" && p === "Razu2020.") {
+                mostrarSplashScreen(
+                    "BIENVENIDO A TCL SISTEMA STREAMING 2026",
+                    "Consola Central SuperAdmin • Acceso Autorizado",
+                    () => {
+                        const sesion = { tipo: 'MASTER', usuario: 'tucocel', nombre: 'SUPERADMIN' };
+                        establecerSesion(sesion, recordar);
+                        iniciarModoMaster();
+                    }
+                );
+                return;
+            }
+
+            const vendedor = dbMasterVendedores.find(x => x.usuario.toLowerCase() === u && x.clave === p);
+            if (!vendedor) {
+                return alert("❌ Usuario o contraseña incorrectos.");
+            }
+
+            if (vendedor.estado === 'ELIMINADO_DEF') {
+                return alert("🚫 ACCESO REVOCADO: Esta cuenta ha sido eliminada del servidor.");
+            }
+
+            const diasLicencia = calcularDiasRestantes(vendedor.fecha, vendedor.meses, vendedor.diasPrueba || 0);
+            if (diasLicencia < 0 || vendedor.estado === 'PAUSADO') {
+                vendedor.estado = 'PAUSADO';
+                guardarMasterVendedores();
+                mostrarPantallaBloqueoPausado(vendedor, diasLicencia < 0 && vendedor.tipoDuracion === 'DIAS_PRUEBA');
+                return;
+            }
+
+            mostrarSplashScreen(
+                `BIENVENIDO A ${vendedor.nombre}`,
+                "Espacio de Trabajo Seguro • TCL Streaming 2026",
+                () => {
+                    const sesion = { tipo: 'VENDEDOR', id: vendedor.id, nombre: vendedor.nombre, usuario: vendedor.usuario };
+                    establecerSesion(sesion, recordar);
+                    iniciarModoVendedor(vendedor.id);
+                }
+            );
+        }
+
+        function establecerSesion(sesion, persistente) {
+            sessionStorage.setItem('sp_sesion_activa', JSON.stringify(sesion));
+            if (persistente) localStorage.setItem('sp_sesion_persistente', JSON.stringify(sesion));
+            else localStorage.removeItem('sp_sesion_persistente');
+            sesionActual = sesion;
+        }
+
+        function cerrarSesion() {
+            sessionStorage.removeItem('sp_sesion_activa');
+            localStorage.removeItem('sp_sesion_persistente');
+            sesionActual = null;
+            esModoMasterImpersonacion = false;
+            vendedorIdImpersonado = null;
+
+            document.getElementById('login-user').value = '';
+            document.getElementById('login-pass').value = '';
+
+            document.getElementById('capsula-flotante-salir').classList.add('hidden');
+            document.getElementById('banner-impersonacion').classList.add('hidden');
+            document.getElementById('vista-master').classList.add('hidden');
+            document.getElementById('vista-vendedor').classList.add('hidden');
+            document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
+            document.getElementById('vista-login').classList.remove('hidden');
+        }
+
+        function mostrarPantallaBloqueoPausado(vendedor, esDemo = false) {
+            document.getElementById('capsula-flotante-salir').classList.add('hidden');
+            document.getElementById('vista-login').classList.add('hidden');
+            document.getElementById('vista-master').classList.add('hidden');
+            document.getElementById('vista-vendedor').classList.add('hidden');
+            document.getElementById('vista-bloqueo-pausado').classList.remove('hidden');
+
+            const tit = document.getElementById('txt-titulo-bloqueo');
+            const mot = document.getElementById('txt-motivo-bloqueo');
+
+            if (esDemo) {
+                tit.innerText = "Período de Prueba Finalizado";
+                mot.innerText = `Hola ${vendedor.nombre}, tu tiempo de demostración gratuita ha concluido. Si deseas activar el sistema formalmente, contacta al soporte técnico.`;
+            } else {
+                tit.innerText = "Membresía Pausada";
+                mot.innerText = `Hola ${vendedor.nombre}, tu suscripción ha vencido. Tus clientes y cuentas están respaldados y seguros. Contáctanos para reactivar de inmediato.`;
+            }
+        }
+
+        function contactarSoporteMaster() {
+            const u = document.getElementById('login-user').value.trim() || 'Mi Cuenta';
+            const msg = `👋 Hola, me comunico para reactivar mi acceso en TCL Sistema Streaming 2026.\n👤 Mi Usuario: *${u}*\nAdjunto comprobante.`;
+            abrirWhatsAppConMensaje(NUMERO_SOPORTE_OFICIAL, msg);
+        }
+
+        function iniciarModoMaster() {
+            document.getElementById('vista-login').classList.add('hidden');
+            document.getElementById('vista-vendedor').classList.add('hidden');
+            document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
+            document.getElementById('banner-impersonacion').classList.add('hidden');
+            document.getElementById('capsula-flotante-salir').classList.add('hidden');
+            document.getElementById('vista-master').classList.remove('hidden');
+            renderizarBandejaMaster();
+        }
+
+        function guardarMasterVendedores() {
+            localStorage.setItem('sp_master_vendedores', JSON.stringify(dbMasterVendedores));
+        }
+
+        function alternarBovedaAnuladosMaster() {
+            viendoBovedaAnulados = !viendoBovedaAnulados;
+            const btn = document.getElementById('btn-toggle-boveda');
+            const lbl = document.getElementById('master-lbl-seccion-actual');
+
+            if (viendoBovedaAnulados) {
+                btn.className = "bg-amber-500 text-neutral-950 font-black text-[8.5px] md:text-xs px-3 py-1.5 rounded-xl uppercase tracking-wider";
+                btn.innerText = "🟢 Ver Vendedores Activos";
+                lbl.innerText = "Bóveda de Anulados / Espera";
+            } else {
+                btn.className = "bg-neutral-900 border border-neutral-800 hover:border-amber-500 text-amber-400 text-[8.5px] md:text-xs font-black px-3 py-1.5 rounded-xl uppercase tracking-wider";
+                btn.innerText = "📂 Ver Bóveda Anulados";
+                lbl.innerText = "Vendedores Activos";
+            }
+            renderizarBandejaMaster();
+        }
+
+        function renderizarBandejaMaster() {
+            const box = document.getElementById('contenedor-vendedores-master');
+            const busq = document.getElementById('master-in-buscar').value.trim().toUpperCase();
+            box.innerHTML = '';
+
+            let cTotal = 0, cCobrar = 0, cPausados = 0;
+
+            dbMasterVendedores.forEach(v => {
+                if (v.estado === 'ELIMINADO_DEF') return;
+                if (v.estado !== 'ANULADO') cTotal++;
+                const d = calcularDiasRestantes(v.fecha, v.meses, v.diasPrueba || 0);
+                v.diasRestantes = d;
+                if ((d <= 0 || v.estado === 'PAUSADO') && v.estado !== 'ANULADO') cPausados++;
+                else if (d <= 5 && v.estado !== 'ANULADO') cCobrar++;
+            });
+
+            document.getElementById('master-met-total').innerText = cTotal;
+            document.getElementById('master-met-cobrar').innerText = cCobrar;
+            document.getElementById('master-met-pausados').innerText = cPausados;
+
+            let lista = dbMasterVendedores.filter(v => {
+                if (v.estado === 'ELIMINADO_DEF') return false;
+                return viendoBovedaAnulados ? v.estado === 'ANULADO' : v.estado !== 'ANULADO';
+            });
+
+            if (busq) {
+                lista = lista.filter(v => 
+                    v.nombre.toUpperCase().includes(busq) || 
+                    v.usuario.toUpperCase().includes(busq) || 
+                    v.slug.toUpperCase().includes(busq) ||
+                    v.telefono.includes(busq)
+                );
+            }
+
+            if (lista.length === 0) {
+                box.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs font-bold md:col-span-3">${viendoBovedaAnulados ? 'No hay vendedores en la Bóveda de Anulados.' : 'No hay vendedores activos registrados.'}</div>`;
+                return;
+            }
+
+            lista.forEach(v => {
+                const dias = v.diasRestantes;
+                const fVenc = calcularVencimientoExacto(v.fecha, v.meses, v.diasPrueba || 0);
+                const esPausado = dias <= 0 || v.estado === 'PAUSADO';
+                const esAlerta = dias <= 5 && dias > 0;
+                const esDemo = v.tipoDuracion === 'DIAS_PRUEBA';
+
+                const dataKey = `sp_data_${v.id}`;
+                const dataV = JSON.parse(localStorage.getItem(dataKey)) || { ventas: [], cuentas: [] };
+                const totalClientes = dataV.ventas?.length || 0;
+                const totalCuentas = dataV.cuentas?.length || 0;
+
+                let badgeDias = `<span class="text-[9px] font-black text-emerald-400 bg-emerald-950/80 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono">${dias} Días</span>`;
+                if (esAlerta) badgeDias = `<span class="text-[9px] font-black text-amber-400 bg-amber-950/80 border border-amber-500/40 px-2 py-0.5 rounded-full font-mono animate-pulse">⚠️ ${dias}d</span>`;
+                if (esPausado) badgeDias = `<span class="text-[9px] font-black text-red-500 bg-red-950/80 border border-red-500/40 px-2 py-0.5 rounded-full font-mono">Pausado</span>`;
+                if (v.estado === 'ANULADO') badgeDias = `<span class="text-[9px] font-black text-slate-400 bg-neutral-900 border border-neutral-700 px-2 py-0.5 rounded-full font-mono">Bóveda</span>`;
+
+                let avisoClave = '';
+                if (v.claveModificada) {
+                    avisoClave = `
+                        <div class="bg-amber-950/40 border border-amber-500/50 p-2 rounded-xl flex justify-between items-center text-[9.5px]">
+                            <span class="text-amber-400 font-bold">⚠️ Clave cambiada por el cliente: <b class="text-white font-mono">${v.clave}</b></span>
+                            <button onclick="marcarClaveVista('${v.id}')" class="text-slate-400 hover:text-white text-[8.5px] uppercase font-black underline">OK</button>
+                        </div>
+                    `;
+                }
+
+                const urlPersonalizada = `${obtenerUrlBaseSistema()}#${v.slug}`;
+
+                box.innerHTML += `
+                    <div class="card-dark rounded-2xl p-3.5 space-y-2.5 flex flex-col justify-between ${esAlerta ? 'border-amber-500/60' : ''}">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-xs font-black text-white uppercase">${v.nombre}</h3>
+                                    <span class="text-[9.5px] text-slate-400 font-mono block"><i class="fa-solid fa-phone text-[8.5px] mr-1 text-slate-500"></i>${v.telefono}</span>
+                                    <span class="text-[9px] text-slate-500 font-bold block">Vence: ${fVenc} (${esDemo ? v.diasPrueba + ' Días Demo' : v.meses + ' Meses'})</span>
+                                </div>
+                                ${badgeDias}
+                            </div>
+
+                            ${avisoClave}
+
+                            <div class="bg-[#0a0a12] p-2.5 rounded-xl border border-neutral-800 space-y-1 font-mono text-[10px]">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-500 uppercase font-sans text-[8px]">Enlace Slug:</span>
+                                    <span class="font-bold text-amber-300 select-all truncate pl-2">${urlPersonalizada}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-500 uppercase font-sans text-[8px]">Usuario / Clave:</span>
+                                    <span class="font-bold text-slate-200 select-all">${v.usuario} • ${v.clave}</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-0.5 border-t border-neutral-800 text-[8.5px] text-purple-400">
+                                    <span>Total Clientes: ${totalClientes}</span>
+                                    <span>Cuentas Prov: ${totalCuentas}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-5 gap-1 pt-2 border-t border-neutral-800/60">
+                            ${v.estado !== 'ANULADO' ? `
+                                <button onclick="entrarComoAsistente('${v.id}')" title="Entrar a su panel" class="bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-eye text-[10px]"></i> Ver
+                                </button>
+                                <button onclick="despacharCredencialesRevendedor('${v.id}')" title="Enviar credenciales y link" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-share-nodes text-[10px]"></i> Enviar
+                                </button>
+                                <button onclick="abrirModalCaja('${v.id}')" title="Cobro de caja" class="bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 text-amber-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-cash-register text-[10px]"></i> Caja
+                                </button>
+                                <button onclick="abrirEditorVendedorMaster('${v.id}')" title="Editar vendedor" class="bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-pen text-[10px]"></i> Edit
+                                </button>
+                                <button onclick="anularVendedorHaciaBoveda('${v.id}')" title="Mover a bóveda de espera" class="bg-neutral-900 border border-neutral-800 hover:border-red-500 text-red-400 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-box-archive text-[10px]"></i> Anular
+                                </button>
+                            ` : `
+                                <button onclick="reactivarVendedorDesdeBoveda('${v.id}')" class="col-span-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[9.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-recycle"></i> Reactivar
+                                </button>
+                                <button onclick="eliminarDefinitivoVendedor('${v.id}')" class="col-span-2 bg-red-950/90 border border-red-500 hover:bg-red-900 text-red-300 font-black text-[9.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-trash"></i> Borrar
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function alEscribirNombreComercioSlug() {
+            const nom = document.getElementById('m-vendedor-nombre').value;
+            const slug = generarSlugLimpio(nom);
+            document.getElementById('m-vendedor-slug').value = `${obtenerUrlBaseSistema()}#${slug}`;
+            if (!document.getElementById('master-edit-vendedor-id').value) {
+                document.getElementById('m-vendedor-user').value = slug;
+            }
+        }
+
+        function alCambiarTipoTiempoVendedor() {
+            const tipo = document.getElementById('m-vendedor-tipo-tiempo').value;
+            const lbl = document.getElementById('lbl-m-tiempo-valor');
+            if (tipo === 'DIAS_PRUEBA') {
+                lbl.innerText = "Días de Prueba (Demo)";
+                document.getElementById('m-vendedor-tiempo-valor').value = "5";
+            } else {
+                lbl.innerText = "Meses Contratados";
+                document.getElementById('m-vendedor-tiempo-valor').value = "1";
+            }
+        }
+
+        function abrirModalNuevoVendedor() {
+            document.getElementById('modal-vendedor-master-titulo').innerHTML = `<i class="fa-solid fa-user-plus text-amber-400"></i> Registrar Vendedor`;
+            document.getElementById('master-edit-vendedor-id').value = '';
+            document.getElementById('m-vendedor-nombre').value = '';
+            document.getElementById('m-vendedor-slug').value = '';
+            document.getElementById('m-vendedor-user').value = '';
+            document.getElementById('m-vendedor-pass').value = '';
+            document.getElementById('m-vendedor-tlf').value = '';
+            document.getElementById('m-vendedor-tipo-tiempo').value = 'MESES';
+            alCambiarTipoTiempoVendedor();
+            document.getElementById('m-vendedor-fecha').value = getHoyISO();
+            document.getElementById('modal-vendedor-master').classList.remove('hidden');
+        }
+
+        function abrirEditorVendedorMaster(id) {
+            const v = dbMasterVendedores.find(x => x.id === id);
+            if (!v) return;
+            document.getElementById('modal-vendedor-master-titulo').innerHTML = `<i class="fa-solid fa-user-pen text-amber-400"></i> Editar Vendedor`;
+            document.getElementById('master-edit-vendedor-id').value = v.id;
+            document.getElementById('m-vendedor-nombre').value = v.nombre;
+            document.getElementById('m-vendedor-slug').value = `${obtenerUrlBaseSistema()}#${v.slug}`;
+            document.getElementById('m-vendedor-user').value = v.usuario;
+            document.getElementById('m-vendedor-pass').value = v.clave;
+            document.getElementById('m-vendedor-tlf').value = v.telefono;
+            document.getElementById('m-vendedor-tipo-tiempo').value = v.tipoDuracion || 'MESES';
+            alCambiarTipoTiempoVendedor();
+            document.getElementById('m-vendedor-tiempo-valor').value = v.tipoDuracion === 'DIAS_PRUEBA' ? v.diasPrueba : (v.meses || 1);
+            document.getElementById('m-vendedor-fecha').value = v.fecha || getHoyISO();
+            document.getElementById('modal-vendedor-master').classList.remove('hidden');
+        }
+
+        function cerrarModalNuevoVendedor() {
+            document.getElementById('modal-vendedor-master').classList.add('hidden');
+        }
+
+        function guardarVendedorMaster(e) {
+            e.preventDefault();
+            const editId = document.getElementById('master-edit-vendedor-id').value;
+            const nom = document.getElementById('m-vendedor-nombre').value.trim().toUpperCase();
+            const slug = generarSlugLimpio(nom);
+            const u = document.getElementById('m-vendedor-user').value.trim().toLowerCase();
+            const p = document.getElementById('m-vendedor-pass').value.trim();
+            const tlf = document.getElementById('m-vendedor-tlf').value.trim();
+            const tipoDur = document.getElementById('m-vendedor-tipo-tiempo').value;
+            const valTiempo = parseInt(document.getElementById('m-vendedor-tiempo-valor').value) || 1;
+            const fechaAct = document.getElementById('m-vendedor-fecha').value || getHoyISO();
+
+            if (editId) {
+                const v = dbMasterVendedores.find(x => x.id === editId);
+                if (v) {
+                    v.nombre = nom;
+                    v.slug = slug;
+                    v.usuario = u;
+                    v.clave = p;
+                    v.telefono = tlf;
+                    v.tipoDuracion = tipoDur;
+                    v.fecha = fechaAct;
+                    if (tipoDur === 'DIAS_PRUEBA') { v.diasPrueba = valTiempo; v.meses = 0; }
+                    else { v.meses = valTiempo; v.diasPrueba = 0; }
+                }
+            } else {
+                const existe = dbMasterVendedores.find(x => (x.usuario.toLowerCase() === u || x.slug === slug) && x.estado !== 'ELIMINADO_DEF');
+                if (existe) return alert("❌ Ese nombre de usuario o slug ya existe.");
+
+                const nuevo = {
+                    id: 'vend-' + Date.now(),
+                    nombre: nom,
+                    slug: slug,
+                    usuario: u,
+                    clave: p,
+                    telefono: tlf,
+                    tipoDuracion: tipoDur,
+                    meses: tipoDur === 'MESES' ? valTiempo : 0,
+                    diasPrueba: tipoDur === 'DIAS_PRUEBA' ? valTiempo : 0,
+                    fecha: fechaAct,
+                    estado: 'ACTIVO',
+                    claveModificada: false
+                };
+                dbMasterVendedores.unshift(nuevo);
+            }
+
+            guardarMasterVendedores();
+            cerrarModalNuevoVendedor();
+            renderizarBandejaMaster();
+            alert("💾 Vendedor guardado con éxito.");
+        }
+
+        function despacharCredencialesRevendedor(id) {
+            const v = dbMasterVendedores.find(x => x.id === id);
+            if (!v) return;
+            const esDemo = v.tipoDuracion === 'DIAS_PRUEBA';
+            const fVenc = calcularVencimientoExacto(v.fecha, v.meses, v.diasPrueba || 0);
+            const linkSistema = `${obtenerUrlBaseSistema()}#${v.slug}`;
+
+            const msg = `🚀 *¡BIENVENIDO A TCL SISTEMA STREAMING 2026!* 🎬\n` +
+                        `Todo el control de tu negocio en tus manos.\n\n` +
+                        `¡Te damos la más cordial bienvenida! A continuación, tus credenciales de acceso:\n\n` +
+                        `👤 *Usuario:* \`${v.usuario}\`\n` +
+                        `🔑 *Contraseña:* \`${v.clave}\`\n` +
+                        `⏳ *Duración:* ${esDemo ? v.diasPrueba + ' Días de Prueba' : v.meses + ' Mes(es)'}\n` +
+                        `📅 *Fecha de Corte:* ${fVenc}\n\n` +
+                        `🔗 *Enlace directo a tu sistema:*\n${linkSistema}\n\n` +
+                        `⚠️ *ADVERTENCIA Y REGLAS DE SEGURIDAD:*\n` +
+                        `• Este enlace y credenciales son personales e intransferibles.\n` +
+                        `• No compartas tus claves con terceros; no nos hacemos responsables por el mal uso o pérdida de información.\n` +
+                        `• Esta membresía es un alquiler por suscripción, no constituye la compra definitiva del software.\n\n` +
+                        `🏛️ *TCL SISTEMA STREAMING 2026 ES UN SISTEMA DE TUCOCEL C.A. DESARROLLADO POR PUBLITASAMK (AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.)*\n` +
+                        `📞 Soporte Técnico Oficial Único: 0424-7357549`;
+
+            despacharCompartirTextoUniversal(v.telefono, msg);
+        }
+
+        function abrirModalCaja(id) {
+            const v = dbMasterVendedores.find(x => x.id === id);
+            if (!v) return;
+            document.getElementById('caja-vendedor-id').value = v.id;
+            document.getElementById('caja-lbl-nombre').innerText = v.nombre;
+            document.getElementById('caja-lbl-vencimiento').innerText = `Vence: ${calcularVencimientoExacto(v.fecha, v.meses, v.diasPrueba || 0)}`;
+            document.getElementById('caja-in-meses').value = '1';
+            document.getElementById('caja-in-monto').value = '';
+            document.getElementById('modal-caja-master').classList.remove('hidden');
+        }
+
+        function cerrarModalCajaMaster() {
+            document.getElementById('modal-caja-master').classList.add('hidden');
+        }
+
+        function confirmarPagoCajaMaster() {
+            const id = document.getElementById('caja-vendedor-id').value;
+            const v = dbMasterVendedores.find(x => x.id === id);
+            if (!v) return;
+
+            const mesesExt = parseInt(document.getElementById('caja-in-meses').value) || 1;
+            const [y, m, d] = (v.fecha || getHoyISO()).split('-').map(Number);
+            const fObj = new Date(y, m - 1, d);
+            fObj.setMonth(fObj.getMonth() + mesesExt);
+            v.fecha = `${fObj.getFullYear()}-${String(fObj.getMonth() + 1).padStart(2, '0')}-${String(fObj.getDate()).padStart(2, '0')}`;
+            v.tipoDuracion = 'MESES';
+            v.diasPrueba = 0;
+            v.meses = (v.meses || 0) + mesesExt;
+            v.estado = 'ACTIVO';
+
+            guardarMasterVendedores();
+            cerrarModalCajaMaster();
+            renderizarBandejaMaster();
+            alert(`✅ Cobro registrado. Membresía extendida por ${mesesExt} mes(es).`);
+        }
+
+        function anularVendedorHaciaBoveda(id) {
+            const v = dbMasterVendedores.find(x => x.id === id);
+            if (!v) return;
+            if (!confirm(`¿Mover a [${v.nombre}] a la Bóveda de Anulados? (Se suspenderá su acceso pero sus datos quedarán seguros)`)) return;
+            v.estado = 'ANULADO';
+            guardarMasterVendedores();
+            renderizarBandejaMaster();
+        }
+
+        function reactivarVendedorDesdeBoveda(id) {
+            const v = dbMasterVendedores.find(x => x.id === id);
+            if (!v) return;
+            const m = parseInt(prompt("Ingrese los meses a renovar:", "1")) || 1;
+            v.fecha = getHoyISO();
+            v.meses = m;
+            v.tipoDuracion = 'MESES';
+            v.diasPrueba = 0;
+            v.estado = 'ACTIVO';
+            guardarMasterVendedores();
+            renderizarBandejaMaster();
+            alert(`♻️ Vendedor [${v.nombre}] reactivado exitosamente.`);
+        }
+
+        function eliminarDefinitivoVendedor(id) {
+            const v = dbMasterVendedores.find(x => x.id === id);
+            if (!v) return;
+            if (!confirm(`🛑 ATENCIÓN: ¿Eliminar definitivamente a [${v.nombre}]? Se borrarán clientes, cuentas y su enlace. ¡PERDIÓ EL AÑO!`)) return;
+
+            localStorage.removeItem(`sp_data_${v.id}`);
+            dbMasterVendedores = dbMasterVendedores.filter(x => x.id !== id);
+            guardarMasterVendedores();
+            renderizarBandejaMaster();
+            alert("🗑️ Vendedor y datos eliminados de forma irrecuperable.");
+        }
+
+        function entrarComoAsistente(vendedorId) {
+            const v = dbMasterVendedores.find(x => x.id === vendedorId);
+            if (!v) return;
+            esModoMasterImpersonacion = true;
+            vendedorIdImpersonado = vendedorId;
+
+            document.getElementById('lbl-impersonado-nombre').innerText = v.nombre;
+            document.getElementById('banner-impersonacion').classList.remove('hidden');
+            document.getElementById('vista-master').classList.add('hidden');
+            iniciarModoVendedor(vendedorId);
+        }
+
+        function salirModoAsistencia() {
+            esModoMasterImpersonacion = false;
+            vendedorIdImpersonado = null;
+            document.getElementById('banner-impersonacion').classList.add('hidden');
+            document.getElementById('vista-vendedor').classList.add('hidden');
+            iniciarModoMaster();
+        }
+
+        function iniciarModoVendedor(vendedorId) {
+            document.getElementById('vista-login').classList.add('hidden');
+            document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
+            document.getElementById('vista-vendedor').classList.remove('hidden');
+            document.getElementById('capsula-flotante-salir').classList.remove('hidden');
+
+            const v = dbMasterVendedores.find(x => x.id === vendedorId);
+            if (v) {
+                document.getElementById('header-nombre-negocio').innerText = v.nombre;
+                const d = calcularDiasRestantes(v.fecha, v.meses, v.diasPrueba || 0);
+                const badge = document.getElementById('header-badge-dias-licencia');
+                badge.innerText = `${d} Días de Membresía`;
+                if (d <= 5) badge.className = "text-[8.5px] md:text-[9.5px] font-mono font-black text-amber-400 animate-pulse block leading-none";
+                else badge.className = "text-[8.5px] md:text-[9.5px] font-mono font-bold text-emerald-400 block leading-none";
+            }
+
+            const dataKey = `sp_data_${vendedorId}`;
+            const dataV = JSON.parse(localStorage.getItem(dataKey)) || { ventas: [], cuentas: [] };
+            dbVentas = dataV.ventas || [];
+            dbCuentas = dataV.cuentas || [];
+
+            filtroServicioActual = 'PLEGADO';
+            filtroEstadoActual = 'TODOS';
+            document.getElementById('lbl-filtro-activo').innerText = 'Panel Plegado';
+            document.getElementById('in-busqueda').value = '';
+
+            poblarSelectServicios();
+            actualizarMetricasYChismoseador();
+            renderizarBandejaClientes();
+        }
+
+        function guardarDatosVendedorActual() {
+            const vId = esModoMasterImpersonacion ? vendedorIdImpersonado : (sesionActual ? sesionActual.id : null);
+            if (!vId) return;
+            const dataKey = `sp_data_${vId}`;
+            localStorage.setItem(dataKey, JSON.stringify({ ventas: dbVentas, cuentas: dbCuentas }));
+        }
+
+        function abrirModalMiPerfil() {
+            document.getElementById('perfil-nueva-clave').value = '';
+            document.getElementById('modal-mi-perfil').classList.remove('hidden');
+        }
+        function cerrarModalMiPerfil() {
+            document.getElementById('modal-mi-perfil').classList.add('hidden');
+        }
+        function guardarNuevaClaveVendedor(e) {
+            e.preventDefault();
+            const nueva = document.getElementById('perfil-nueva-clave').value.trim();
+            if (!nueva) return;
+
+            const vId = esModoMasterImpersonacion ? vendedorIdImpersonado : (sesionActual ? sesionActual.id : null);
+            const v = dbMasterVendedores.find(x => x.id === vId);
+            if (v) {
+                v.clave = nueva;
+                v.claveModificada = true;
+                guardarMasterVendedores();
+                cerrarModalMiPerfil();
+                alert("🔒 Contraseña actualizada correctamente.");
+            }
+        }
+
+        function exportarClientesExcelCSV() {
+            if (dbVentas.length === 0) return alert("No hay clientes registrados para exportar.");
+
+            let csvContent = "\uFEFF";
+            csvContent += "Cliente,Telefono,Servicio,Correo,Clave,Perfil,PIN,Fecha_Activacion,Fecha_Corte,Dias_Restantes\n";
+
+            dbVentas.forEach(v => {
+                const fVenc = calcularVencimientoExacto(v.fecha, v.meses);
+                const d = calcularDiasRestantes(v.fecha, v.meses);
+                csvContent += `"${v.cliente}","${v.tlf}","${v.servicio}","${v.correo}","${v.clave}","${v.perfil || ''}","${v.pin || ''}","${v.fecha}","${fVenc}","${d}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Clientes_Streaming_${getHoyISO()}.csv`;
+            link.click();
+        }
+
+        function renderizarBandejaClientes() {
+            const box = document.getElementById('contenedor-asignaciones');
+            const busq = document.getElementById('in-busqueda').value.trim().toUpperCase();
+            box.innerHTML = '';
+
+            if (filtroServicioActual === 'PLEGADO' && !busq) {
+                box.innerHTML = `
+                    <div class="card-dark rounded-2xl p-6 text-center space-y-1.5 border-dashed border-neutral-800 md:col-span-3">
+                        <i class="fa-solid fa-layer-group text-slate-600 text-xl block"></i>
+                        <span class="text-xs font-bold text-slate-400 uppercase block">Panel Plegado</span>
+                        <p class="text-[10px] text-slate-500 leading-tight">Toca una plataforma arriba o usa el buscador para desplegar clientes sin saturar la vista.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let lista = dbVentas.filter(v => {
+                if (filtroServicioActual !== 'TODOS' && filtroServicioActual !== 'PLEGADO') {
+                    if (v.servicio.toLowerCase() !== filtroServicioActual.toLowerCase()) return false;
+                }
+                if (filtroEstadoActual === 'ACTIVO') return v.diasRestantes > 4;
+                if (filtroEstadoActual === 'ALERTA') return v.diasRestantes >= 0 && v.diasRestantes <= 4;
+                if (filtroEstadoActual === 'VENCIDO') return v.diasRestantes < 0;
+                return true;
+            });
+
+            if (busq) {
+                lista = lista.filter(v => 
+                    v.cliente.toUpperCase().includes(busq) || 
+                    v.servicio.toUpperCase().includes(busq) || 
+                    v.correo.toUpperCase().includes(busq) ||
+                    (v.perfil && v.perfil.toUpperCase().includes(busq)) ||
+                    v.tlf.includes(busq)
+                );
+            }
+
+            if (lista.length === 0) {
+                box.innerHTML = `<div class="p-6 text-center text-slate-500 text-xs font-bold md:col-span-3">No se encontraron clientes para este filtro.</div>`;
+                return;
+            }
+
+            lista.forEach(item => {
+                const dias = item.diasRestantes;
+                const fVenc = calcularVencimientoExacto(item.fecha, item.meses);
+                const [y, m, d] = (item.fecha || getHoyISO()).split('-');
+                const fAct = `${d}/${m}/${y}`;
+
+                let badge = `<span class="text-[9px] font-black text-emerald-400 bg-emerald-950/80 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono">${dias} Días</span>`;
+                if (dias <= 4 && dias >= 0) badge = `<span class="text-[9px] font-black text-amber-400 bg-amber-950/80 border border-amber-500/40 px-2 py-0.5 rounded-full font-mono animate-pulse">Vence en ${dias}d</span>`;
+                if (dias < 0) badge = `<span class="text-[9px] font-black text-red-500 bg-red-950/80 border border-red-500/40 px-2 py-0.5 rounded-full font-mono">Vencido</span>`;
+
+                box.innerHTML += `
+                    <div class="card-dark rounded-2xl p-3.5 space-y-2.5 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[9px] font-black text-purple-400 uppercase tracking-wide block">${item.servicio}</span>
+                                    <h3 class="text-xs font-black text-white uppercase">${item.cliente}</h3>
+                                    <span class="text-[9.5px] text-slate-400 font-mono block"><i class="fa-solid fa-phone text-[8.5px] mr-1 text-slate-500"></i>${item.tlf}</span>
+                                </div>
+                                ${badge}
+                            </div>
+
+                            <div class="bg-[#0a0a12] p-2.5 rounded-xl border border-neutral-800 space-y-1 font-mono text-[10px]">
+                                <div class="flex justify-between items-center text-slate-300">
+                                    <span class="text-slate-500 uppercase font-sans text-[8.5px]">Correo:</span>
+                                    <span class="font-bold select-all truncate pl-2">${item.correo}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-slate-300">
+                                    <span class="text-slate-500 uppercase font-sans text-[8.5px]">Clave:</span>
+                                    <span class="font-bold text-amber-300 select-all">${item.clave}</span>
+                                </div>
+                                ${item.perfil ? `
+                                <div class="flex justify-between items-center text-slate-300">
+                                    <span class="text-slate-500 uppercase font-sans text-[8.5px]">Perfil / PIN:</span>
+                                    <span class="font-bold uppercase text-purple-300">${item.perfil} ${item.pin ? '• PIN: ' + item.pin : ''}</span>
+                                </div>` : ''}
+                                <div class="flex justify-between items-center text-slate-400 pt-0.5 border-t border-neutral-800/80 text-[9px]">
+                                    <span>Activado: ${fAct} (${item.meses}m)</span>
+                                    <span class="text-amber-400 font-bold">Corte: ${fVenc}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-5 gap-1 pt-2 border-t border-neutral-800/60">
+                            <button onclick="enviarAcceso('${item.id}')" title="Enviar credenciales" class="bg-purple-950/70 hover:bg-purple-900 border border-purple-500/40 text-purple-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-key text-[10px]"></i> Clave
+                            </button>
+                            <button onclick="enviarCobro('${item.id}')" title="Enviar recordatorio cobro" class="bg-amber-950/70 hover:bg-amber-900 border border-amber-500/40 text-amber-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-bell text-[10px]"></i> Cobrar
+                            </button>
+                            <button onclick="renovarUnMes('${item.id}')" title="Renovar +1 mes anclado" class="bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-bolt text-[10px]"></i> +1M
+                            </button>
+                            <button onclick="abrirEditorModal('${item.id}')" title="Editar cuenta" class="bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit
+                            </button>
+                            <button onclick="abrirWhatsAppDirecto('${item.tlf}')" title="WhatsApp directo" class="bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-500/30 text-emerald-400 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <i class="fa-brands fa-whatsapp text-xs"></i> Chat
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function enviarAcceso(id) {
+            const v = dbVentas.find(x => x.id === id);
+            if (!v) return;
+            const fVenc = calcularVencimientoExacto(v.fecha, v.meses);
+            let msg = `🎬 *¡HOLA ${v.cliente}! TU ACCESO ESTÁ LISTO* 🍿\n\n` +
+                      `📺 *Servicio:* ${v.servicio}\n` +
+                      `📧 *Correo:* \`${v.correo}\`\n` +
+                      `🔑 *Contraseña:* \`${v.clave}\`\n`;
+            if (v.perfil) msg += `👤 *Perfil Asignado:* ${v.perfil}\n`;
+            if (v.pin) msg += `🔒 *PIN:* ${v.pin}\n`;
+            msg += `📅 *Válido hasta:* ${fVenc}\n\n` +
+                   `⚠️ *Reglas de Oro:*\n` +
+                   `• Esta suscripción es un alquiler mensual. Para renovar debes pagar 1 día antes del corte.\n` +
+                   `• No cambiar correo ni contraseña.\n` +
+                   `• Ingresar únicamente a tu perfil asignado. ¡Disfruta tu servicio!`;
+            despacharCompartirTextoUniversal(v.tlf, msg);
+        }
+
+        function enviarCobro(id) {
+            const v = dbVentas.find(x => x.id === id);
+            if (!v) return;
+            const fVenc = calcularVencimientoExacto(v.fecha, v.meses);
+            const msg = `🔔 *RECORDATORIO DE PAGO — ${v.servicio.toUpperCase()}* 📺\n\n` +
+                        `Hola *${v.cliente}*, te recordamos que tu suscripción vence el *${fVenc}*.\n\n` +
+                        `Por favor gestiona tu renovación con anticipación para mantener tu pantalla activa sin interrupciones.\n\n` +
+                        `¡Quedamos atentos a tu comprobante de pago! 🫡`;
+            despacharCompartirTextoUniversal(v.tlf, msg);
+        }
+
+        function renovarUnMes(id) {
+            const v = dbVentas.find(x => x.id === id);
+            if (!v) return;
+            const [y, m, d] = (v.fecha || getHoyISO()).split('-').map(Number);
+            const fObj = new Date(y, m - 1, d);
+            fObj.setMonth(fObj.getMonth() + 1);
+            v.fecha = `${fObj.getFullYear()}-${String(fObj.getMonth() + 1).padStart(2, '0')}-${String(fObj.getDate()).padStart(2, '0')}`;
+            guardarDatosVendedorActual();
+            actualizarMetricasYChismoseador();
+            renderizarBandejaClientes();
+            alert(`⚡ ${v.cliente} renovado por 1 mes adicional.`);
+        }
+
+        function poblarSelectServicios() {
+            const selVenta = document.getElementById('form-servicio');
+            const selCta = document.getElementById('cta-servicio');
+            selVenta.innerHTML = '';
+            selCta.innerHTML = '';
+            catalogoServicios.forEach(s => {
+                selVenta.innerHTML += `<option value="${s}">${s}</option>`;
+                selCta.innerHTML += `<option value="${s}">${s}</option>`;
+            });
+        }
+
+        function abrirModalVenta() {
+            document.getElementById('modal-form-titulo').innerHTML = `<i class="fa-solid fa-cart-shopping text-purple-400"></i> Registrar Venta`;
+            document.getElementById('form-btn-submit').innerText = 'Guardar Venta 🚀';
+            document.getElementById('form-edit-id').value = '';
+            document.getElementById('box-selector-cuenta-madre').classList.remove('hidden');
+            actualizarSelectCuentasMadre();
+
+            document.getElementById('form-correo').value = '';
+            document.getElementById('form-clave').value = '';
+            document.getElementById('form-perfil').value = '';
+            document.getElementById('form-pin').value = '';
+            document.getElementById('form-cliente').value = '';
+            document.getElementById('form-tlf').value = '';
+            document.getElementById('form-meses').value = '1';
+            document.getElementById('form-fecha').value = getHoyISO();
+
+            document.getElementById('modal-formulario-venta').classList.remove('hidden');
+        }
+
+        function abrirEditorModal(id) {
+            const v = dbVentas.find(x => x.id === id);
+            if (!v) return;
+            document.getElementById('modal-form-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square text-purple-400"></i> Modificar Suscripción`;
+            document.getElementById('form-btn-submit').innerText = 'Guardar Cambios 💾';
+            document.getElementById('form-edit-id').value = v.id;
+            document.getElementById('box-selector-cuenta-madre').classList.add('hidden');
+
+            document.getElementById('form-servicio').value = v.servicio;
+            document.getElementById('form-correo').value = v.correo;
+            document.getElementById('form-clave').value = v.clave;
+            document.getElementById('form-perfil').value = v.perfil || '';
+            document.getElementById('form-pin').value = v.pin || '';
+            document.getElementById('form-cliente').value = v.cliente;
+            document.getElementById('form-tlf').value = v.tlf;
+            document.getElementById('form-meses').value = v.meses || '1';
+            document.getElementById('form-fecha').value = v.fecha || getHoyISO();
+
+            document.getElementById('modal-formulario-venta').classList.remove('hidden');
+        }
+
+        function cerrarModalVenta() {
+            document.getElementById('modal-formulario-venta').classList.add('hidden');
+        }
+
+        function guardarFormularioVenta(e) {
+            e.preventDefault();
+            const editId = document.getElementById('form-edit-id').value;
+
+            if (editId) {
+                const v = dbVentas.find(x => x.id === editId);
+                if (v) {
+                    v.servicio = document.getElementById('form-servicio').value;
+                    v.correo = document.getElementById('form-correo').value.trim();
+                    v.clave = document.getElementById('form-clave').value.trim();
+                    v.perfil = document.getElementById('form-perfil').value.trim().toUpperCase();
+                    v.pin = document.getElementById('form-pin').value.trim();
+                    v.cliente = document.getElementById('form-cliente').value.trim().toUpperCase();
+                    v.tlf = document.getElementById('form-tlf').value.trim();
+                    v.meses = parseInt(document.getElementById('form-meses').value) || 1;
+                    v.fecha = document.getElementById('form-fecha').value || getHoyISO();
+                }
+            } else {
+                const nueva = {
+                    id: 'v-' + Date.now(),
+                    servicio: document.getElementById('form-servicio').value,
+                    correo: document.getElementById('form-correo').value.trim(),
+                    clave: document.getElementById('form-clave').value.trim(),
+                    perfil: document.getElementById('form-perfil').value.trim().toUpperCase(),
+                    pin: document.getElementById('form-pin').value.trim(),
+                    cliente: document.getElementById('form-cliente').value.trim().toUpperCase(),
+                    tlf: document.getElementById('form-tlf').value.trim(),
+                    meses: parseInt(document.getElementById('form-meses').value) || 1,
+                    fecha: document.getElementById('form-fecha').value || getHoyISO()
+                };
+                dbVentas.unshift(nueva);
+                enviarAcceso(nueva.id);
+            }
+
+            guardarDatosVendedorActual();
+            cerrarModalVenta();
+            actualizarMetricasYChismoseador();
+            renderizarBandejaClientes();
+        }
+
+        function actualizarMetricasYChismoseador() {
+            let cActivos = 0, cCobrar = 0, cVencidos = 0;
+
+            dbVentas.forEach(v => {
+                const d = calcularDiasRestantes(v.fecha, v.meses);
+                v.diasRestantes = d;
+                if (d > 4) cActivos++;
+                else if (d >= 0 && d <= 4) cCobrar++;
+                else cVencidos++;
+            });
+
+            document.getElementById('met-activos').innerText = cActivos;
+            document.getElementById('met-cobrar').innerText = cCobrar;
+            document.getElementById('met-vencidos').innerText = cVencidos;
+            document.getElementById('met-total').innerText = dbVentas.length;
+
+            renderizarGridPlataformas();
+        }
+
+        function renderizarGridPlataformas() {
+            const grid = document.getElementById('grid-plataformas-fijas');
+            grid.innerHTML = '';
+
+            const actTodos = filtroServicioActual === 'TODOS';
+            grid.innerHTML += `
+                <button onclick="seleccionarCarpeta('TODOS')" class="p-2 rounded-xl text-left transition-all border ${actTodos ? 'bg-purple-600/30 border-purple-500 text-white' : 'card-dark text-slate-400'}">
+                    <span class="text-[8px] md:text-[9.5px] font-black uppercase block truncate">📂 Todos</span>
+                    <span class="text-xs md:text-sm font-mono font-black ${actTodos ? 'text-purple-300' : 'text-slate-300'}">${dbVentas.length}</span>
+                </button>
+            `;
+
+            catalogoServicios.forEach(srv => {
+                const clientesPlat = dbVentas.filter(v => v.servicio.toLowerCase() === srv.toLowerCase());
+                const alertas = clientesPlat.filter(v => v.diasRestantes <= 4).length;
+                const act = filtroServicioActual.toLowerCase() === srv.toLowerCase();
+
+                let estiloBorde = 'card-dark text-slate-400';
+                let txtAlerta = `<span class="text-xs md:text-sm font-mono font-black ${act ? 'text-purple-300' : 'text-slate-300'}">${clientesPlat.length}</span>`;
+
+                if (alertas > 0) {
+                    estiloBorde = 'bg-amber-950/20 border-amber-500/80 anim-alerta text-amber-300 font-bold';
+                    txtAlerta = `<span class="text-[10px] md:text-xs font-mono font-black text-amber-400 block">⚠️ ${alertas} Alerta${alertas > 1 ? 's' : ''}</span>`;
+                } else if (act) {
+                    estiloBorde = 'bg-purple-600/30 border-purple-500 text-white';
+                }
+
+                grid.innerHTML += `
+                    <button onclick="seleccionarCarpeta('${srv}')" class="p-2 rounded-xl text-left transition-all border ${estiloBorde}">
+                        <span class="text-[8px] md:text-[9.5px] font-black uppercase block truncate">${srv}</span>
+                        ${txtAlerta}
+                    </button>
+                `;
+            });
+
+            grid.innerHTML += `
+                <button onclick="abrirModalNuevaPlat()" title="Agregar nuevo servicio" class="p-2 rounded-xl flex items-center justify-center border border-dashed border-neutral-700 hover:border-purple-500 text-slate-400 hover:text-purple-400 transition-all bg-[#0a0a12]">
+                    <i class="fa-solid fa-plus text-sm"></i>
+                </button>
+            `;
+        }
+
+        function seleccionarCarpeta(srv) {
+            filtroServicioActual = srv;
+            document.getElementById('lbl-filtro-activo').innerText = srv;
+            renderizarGridPlataformas();
+            renderizarBandejaClientes();
+        }
+
+        function filtrarPorEstado(st) {
+            filtroEstadoActual = st;
+            if (filtroServicioActual === 'PLEGADO') filtroServicioActual = 'TODOS';
+            document.getElementById('lbl-filtro-activo').innerText = `${filtroServicioActual} (${st})`;
+            renderizarGridPlataformas();
+            renderizarBandejaClientes();
+        }
+
+        function plegarPanel() {
+            filtroServicioActual = 'PLEGADO';
+            filtroEstadoActual = 'TODOS';
+            document.getElementById('lbl-filtro-activo').innerText = 'Panel Plegado';
+            document.getElementById('in-busqueda').value = '';
+            renderizarGridPlataformas();
+            renderizarBandejaClientes();
+        }
+
+        function alEscribirBusqueda() {
+            const val = document.getElementById('in-busqueda').value.trim();
+            if (val.length > 0 && filtroServicioActual === 'PLEGADO') {
+                filtroServicioActual = 'TODOS';
+                document.getElementById('lbl-filtro-activo').innerText = 'Búsqueda Activa';
+                renderizarGridPlataformas();
+            }
+            renderizarBandejaClientes();
+        }
+
+        function actualizarSelectCuentasMadre() {
+            const sel = document.getElementById('form-select-cuenta-madre');
+            sel.innerHTML = `<option value="MANUAL">✍️ Escribir datos manualmente</option>`;
+            dbCuentas.forEach((c, idx) => {
+                sel.innerHTML += `<option value="${idx}">[${c.servicio}] ${c.correo} (${c.proveedor || 'Sin Prov.'})</option>`;
+            });
+        }
+
+        function alSeleccionarCuentaMadre() {
+            const val = document.getElementById('form-select-cuenta-madre').value;
+            if (val === 'MANUAL') return;
+            const cta = dbCuentas[parseInt(val)];
+            if (cta) {
+                document.getElementById('form-servicio').value = cta.servicio;
+                document.getElementById('form-correo').value = cta.correo;
+                document.getElementById('form-clave').value = cta.clave;
+            }
+        }
+
+        function abrirModalProveedores() {
+            limpiarFormularioProveedor();
+            renderizarListaProveedores();
+            document.getElementById('modal-proveedores').classList.remove('hidden');
+        }
+        function cerrarModalProveedores() {
+            document.getElementById('modal-proveedores').classList.add('hidden');
+        }
+
+        function limpiarFormularioProveedor() {
+            document.getElementById('cta-edit-id').value = '';
+            document.getElementById('lbl-prov-modo').innerText = 'Registrar Nueva Cuenta Comprada:';
+            document.getElementById('cta-btn-submit').innerText = 'Guardar Cuenta 💾';
+            document.getElementById('cta-btn-cancelar').classList.add('hidden');
+
+            document.getElementById('cta-correo').value = '';
+            document.getElementById('cta-clave').value = '';
+            document.getElementById('cta-proveedor').value = '';
+            document.getElementById('cta-tlf-prov').value = '';
+            document.getElementById('cta-fecha').value = getHoyISO();
+            document.getElementById('cta-meses').value = '1';
+        }
+
+        function guardarCuentaProveedor(e) {
+            e.preventDefault();
+            const editId = document.getElementById('cta-edit-id').value;
+
+            const ctaData = {
+                servicio: document.getElementById('cta-servicio').value,
+                correo: document.getElementById('cta-correo').value.trim(),
+                clave: document.getElementById('cta-clave').value.trim(),
+                proveedor: document.getElementById('cta-proveedor').value.trim().toUpperCase(),
+                tlfProveedor: document.getElementById('cta-tlf-prov').value.trim(),
+                fecha: document.getElementById('cta-fecha').value || getHoyISO(),
+                meses: parseInt(document.getElementById('cta-meses').value) || 1
+            };
+
+            if (editId) {
+                const c = dbCuentas.find(x => x.id === editId);
+                if (c) Object.assign(c, ctaData);
+            } else {
+                ctaData.id = 'cta-' + Date.now();
+                dbCuentas.unshift(ctaData);
+            }
+
+            guardarDatosVendedorActual();
+            limpiarFormularioProveedor();
+            renderizarListaProveedores();
+            actualizarSelectCuentasMadre();
+            alert('✅ Cuenta de proveedor guardada correctamente.');
+        }
+
+        function editarCuentaProveedor(id) {
+            const c = dbCuentas.find(x => x.id === id);
+            if (!c) return;
+
+            document.getElementById('cta-edit-id').value = c.id;
+            document.getElementById('lbl-prov-modo').innerText = 'Editando Cuenta de Proveedor:';
+            document.getElementById('cta-btn-submit').innerText = 'Actualizar Datos 💾';
+            document.getElementById('cta-btn-cancelar').classList.remove('hidden');
+
+            document.getElementById('cta-servicio').value = c.servicio;
+            document.getElementById('cta-correo').value = c.correo;
+            document.getElementById('cta-clave').value = c.clave;
+            document.getElementById('cta-proveedor').value = c.proveedor;
+            document.getElementById('cta-tlf-prov').value = c.tlfProveedor;
+            document.getElementById('cta-fecha').value = c.fecha || getHoyISO();
+            document.getElementById('cta-meses').value = c.meses || '1';
+
+            document.getElementById('modal-proveedores').querySelector('.overflow-y-auto').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function borrarCuentaProveedor(id) {
+            const c = dbCuentas.find(x => x.id === id);
+            if (!c) return;
+            if (!confirm(`¿Eliminar la cuenta [${c.correo}] del proveedor ${c.proveedor}?`)) return;
+            dbCuentas = dbCuentas.filter(x => x.id !== id);
+            guardarDatosVendedorActual();
+            renderizarListaProveedores();
+            actualizarSelectCuentasMadre();
+        }
+
+        function notificarFallaProveedor(id) {
+            const c = dbCuentas.find(x => x.id === id);
+            if (!c) return;
+            const fVenc = calcularVencimientoExacto(c.fecha, c.meses);
+            const msg = `🚨 *REPORTE DE FALLA EN CUENTA — ${c.servicio.toUpperCase()}*\n\n` +
+                        `Hola *${c.proveedor}*, te escribo para notificarte que la cuenta presenta inconvenientes técnicos / caída de acceso:\n\n` +
+                        `📧 *Correo:* \`${c.correo}\`\n` +
+                        `🔑 *Clave:* \`${c.clave}\`\n` +
+                        `📅 *Vence con usted el:* ${fVenc}\n\n` +
+                        `Por favor su valioso apoyo revisando o reactivando el acceso a la brevedad posible. ¡Muchas gracias! 🙏`;
+            despacharCompartirTextoUniversal(c.tlfProveedor, msg);
+        }
+
+        function alternarAcordeonProveedor(nomProv) {
+            if (proveedorAcordeonAbierto === nomProv) proveedorAcordeonAbierto = null;
+            else proveedorAcordeonAbierto = nomProv;
+            renderizarListaProveedores();
+        }
+
+        function renderizarListaProveedores() {
+            const box = document.getElementById('contenedor-acordeon-proveedores');
+            const busq = document.getElementById('in-busqueda-prov')?.value.trim().toUpperCase() || '';
+            box.innerHTML = '';
+
+            document.getElementById('lbl-total-cuentas-prov').innerText = `${dbCuentas.length} Cuentas`;
+
+            if (dbCuentas.length === 0) {
+                box.innerHTML = `<p class="text-center text-slate-500 italic py-4 text-xs">No hay cuentas de proveedor registradas.</p>`;
+                return;
+            }
+
+            const agrupado = {};
+            dbCuentas.forEach(c => {
+                const pNom = c.proveedor || 'PROVEEDOR DESCONOCIDO';
+                if (!agrupado[pNom]) agrupado[pNom] = [];
+                agrupado[pNom].push(c);
+            });
+
+            const proveedoresFiltrados = Object.keys(agrupado).filter(pNom => {
+                if (!busq) return true;
+                if (pNom.includes(busq)) return true;
+                return agrupado[pNom].some(cta => cta.correo.toUpperCase().includes(busq) || cta.servicio.toUpperCase().includes(busq));
+            });
+
+            if (proveedoresFiltrados.length === 0) {
+                box.innerHTML = `<p class="text-center text-slate-500 italic py-4 text-xs">No hay resultados para la búsqueda.</p>`;
+                return;
+            }
+
+            proveedoresFiltrados.forEach(pNom => {
+                const listaCuentas = agrupado[pNom];
+                const estaAbierto = (proveedorAcordeonAbierto === pNom) || busq.length > 0;
+
+                let alertasProv = 0;
+                listaCuentas.forEach(cta => {
+                    const d = calcularDiasRestantes(cta.fecha, cta.meses);
+                    if (d <= 4) alertasProv++;
+                });
+
+                let badgeProv = `<span class="text-[9px] font-mono text-purple-400 font-bold bg-purple-950/60 px-2 py-0.5 rounded-full">${listaCuentas.length} Cuentas</span>`;
+                if (alertasProv > 0) {
+                    badgeProv = `<span class="text-[9px] font-mono text-amber-400 font-black bg-amber-950/80 border border-amber-500/40 px-2 py-0.5 rounded-full animate-pulse">⚠️ ${alertasProv} Alerta${alertasProv > 1 ? 's' : ''}</span>`;
+                }
+
+                let htmlCuentas = '';
+                if (estaAbierto) {
+                    listaCuentas.forEach(cta => {
+                        const dias = calcularDiasRestantes(cta.fecha, cta.meses);
+                        const fVenc = calcularVencimientoExacto(cta.fecha, cta.meses);
+                        const [y, m, d] = (cta.fecha || getHoyISO()).split('-');
+                        const fAct = `${d}/${m}/${y}`;
+
+                        let badgeDias = `<span class="text-[8.5px] font-black text-emerald-400 bg-emerald-950/80 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono">${dias} Días</span>`;
+                        if (dias <= 4 && dias >= 0) badgeDias = `<span class="text-[8.5px] font-black text-amber-400 bg-amber-950/80 border border-amber-500/40 px-2 py-0.5 rounded-full font-mono animate-pulse">Vence en ${dias}d</span>`;
+                        if (dias < 0) badgeDias = `<span class="text-[8.5px] font-black text-red-500 bg-red-950/80 border border-red-500/40 px-2 py-0.5 rounded-full font-mono">Vencida</span>`;
+
+                        htmlCuentas += `
+                            <div class="bg-[#07070d] p-3 rounded-2xl border border-neutral-800 space-y-2">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="text-[8.5px] font-black uppercase text-purple-400 block">${cta.servicio}</span>
+                                        <span class="text-[10px] text-slate-300 font-mono font-bold block select-all truncate">${cta.correo}</span>
+                                    </div>
+                                    ${badgeDias}
+                                </div>
+
+                                <div class="bg-[#11111e] p-2 rounded-xl border border-neutral-800/80 space-y-1 font-mono text-[9.5px]">
+                                    <div class="flex justify-between items-center text-slate-300">
+                                        <span class="text-slate-500 uppercase font-sans text-[8px]">Clave Maestra:</span>
+                                        <span class="font-bold text-amber-300 select-all">${cta.clave}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-slate-400 pt-0.5 border-t border-neutral-800 text-[8.5px]">
+                                        <span>Comprada: ${fAct} (${cta.meses}m)</span>
+                                        <span class="text-amber-400 font-bold">Vence Prov: ${fVenc}</span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-4 gap-1 pt-1 border-t border-neutral-800/80">
+                                    <button onclick="notificarFallaProveedor('${cta.id}')" title="Notificar falla" class="bg-red-950/80 hover:bg-red-900 border border-red-500/40 text-red-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-triangle-exclamation text-[9px]"></i> Falla
+                                    </button>
+                                    <button onclick="abrirWhatsAppDirecto('${cta.tlfProveedor}')" title="Chat WhatsApp" class="bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                        <i class="fa-brands fa-whatsapp text-xs"></i> Chat
+                                    </button>
+                                    <button onclick="editarCuentaProveedor('${cta.id}')" title="Editar cuenta" class="bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-pen text-[9px]"></i> Editar
+                                    </button>
+                                    <button onclick="borrarCuentaProveedor('${cta.id}')" title="Eliminar cuenta" class="bg-neutral-900 border border-neutral-800 hover:border-red-500 text-slate-400 hover:text-red-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-trash text-[9px]"></i> Borrar
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                box.innerHTML += `
+                    <div class="card-dark rounded-2xl overflow-hidden border border-neutral-800">
+                        <button onclick="alternarAcordeonProveedor('${pNom}')" class="w-full bg-[#11111e] p-3 flex justify-between items-center text-left hover:bg-neutral-800/50 transition-all">
+                            <div class="truncate pr-2">
+                                <h4 class="text-xs font-black text-white uppercase truncate flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-tie text-purple-400 text-xs"></i> ${pNom}
+                                </h4>
+                                <span class="text-[9px] text-slate-400 font-mono block"><i class="fa-solid fa-phone text-[8px] mr-1 text-slate-500"></i>${listaCuentas[0]?.tlfProveedor || 'Sin Teléfono'}</span>
+                            </div>
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                ${badgeProv}
+                                <i class="fa-solid fa-chevron-${estaAbierto ? 'up' : 'down'} text-slate-400 text-xs"></i>
+                            </div>
+                        </button>
+                        ${estaAbierto ? `<div class="p-2.5 space-y-2 border-t border-neutral-800/80 bg-[#0a0a12]/50">${htmlCuentas}</div>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        function abrirModalNuevaPlat() {
+            document.getElementById('nueva-plat-nombre').value = '';
+            document.getElementById('modal-nueva-plataforma').classList.remove('hidden');
+        }
+        function cerrarModalNuevaPlat() {
+            document.getElementById('modal-nueva-plataforma').classList.add('hidden');
+        }
+        function guardarNuevaPlataforma(e) {
+            e.preventDefault();
+            const nom = document.getElementById('nueva-plat-nombre').value.trim();
+            if (nom && !catalogoServicios.includes(nom)) {
+                catalogoServicios.push(nom);
+                localStorage.setItem('sp_catalogo_servicios', JSON.stringify(catalogoServicios));
+                poblarSelectServicios();
+                actualizarMetricasYChismoseador();
+            }
+            cerrarModalNuevaPlat();
+        }
+
+        window.onload = () => {
+            const hashSlug = window.location.hash ? window.location.hash.replace('#', '').trim().toLowerCase() : '';
+
+            if (hashSlug) {
+                const vendedorEnlace = dbMasterVendedores.find(x => x.slug === hashSlug);
+
+                if (!vendedorEnlace || vendedorEnlace.estado === 'ELIMINADO_DEF') {
+                    alert("🚫 ENLACE REVOCADO: Este enlace comercial ya no existe en el servidor.");
+                    window.location.hash = '';
+                    cerrarSesion();
+                    return;
+                }
+
+                document.getElementById('login-subtitulo-contexto').innerHTML = `Acceso Comercial a <b class="text-purple-400">${vendedorEnlace.nombre}</b>`;
+                document.getElementById('login-user').placeholder = vendedorEnlace.usuario;
+            }
+
+            if (sesionActual) {
+                if (sesionActual.tipo === 'MASTER') {
+                    iniciarModoMaster();
+                } else if (sesionActual.tipo === 'VENDEDOR') {
+                    const vendedor = dbMasterVendedores.find(x => x.id === sesionActual.id);
+                    if (vendedor && vendedor.estado !== 'ELIMINADO_DEF' && vendedor.estado !== 'ANULADO') {
+                        const d = calcularDiasRestantes(vendedor.fecha, vendedor.meses, vendedor.diasPrueba || 0);
+                        if (d < 0 || vendedor.estado === 'PAUSADO') {
+                            mostrarPantallaBloqueoPausado(vendedor, d < 0 && vendedor.tipoDuracion === 'DIAS_PRUEBA');
+                        } else {
+                            iniciarModoVendedor(vendedor.id);
+                        }
+                    } else {
+                        cerrarSesion();
+                    }
+                }
+            } else {
+                cerrarSesion();
+            }
+        };
+    </script>
+</body>
+</html>
