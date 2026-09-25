@@ -10,6 +10,11 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SDK FIREBASE COMPATIBLE -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #07070d; color: #f8fafc; user-select: none; }
@@ -42,7 +47,7 @@
             <div class="space-y-1">
                 <span class="text-[9px] font-black uppercase tracking-[0.25em] text-purple-400 block">SISTEMA OFICIAL 2026</span>
                 <h2 id="splash-titulo" class="text-base font-black text-white uppercase tracking-tight">Cargando Sistema...</h2>
-                <p id="splash-subtitulo" class="text-[11px] text-slate-400 font-medium">Validando credenciales y preparando panel...</p>
+                <p id="splash-subtitulo" class="text-[11px] text-slate-400 font-medium">Validando con la nube de Tucocel...</p>
             </div>
             <div class="w-24 h-1 bg-neutral-900 mx-auto rounded-full overflow-hidden">
                 <div class="w-full h-full bg-gradient-to-r from-purple-500 to-emerald-400 animate-pulse"></div>
@@ -87,7 +92,7 @@
                         <input type="checkbox" id="chk-recordar-sesion" class="rounded accent-purple-600 w-3.5 h-3.5">
                         <span>Mantener abierta</span>
                     </label>
-                    <span class="text-slate-500">Auto-cierre: 1 hora</span>
+                    <span class="text-slate-500">Cloud Sync &bull; 1h</span>
                 </div>
 
                 <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-3 rounded-xl uppercase tracking-wider text-xs shadow-lg shadow-purple-600/30">
@@ -98,21 +103,21 @@
             <div class="border-t border-neutral-800/80 pt-3 text-center space-y-1">
                 <span class="text-[8.5px] text-amber-400 font-black uppercase tracking-wider block">⚠️ SOPORTE TÉCNICO OFICIAL ÚNICO</span>
                 <p class="text-[9.5px] text-slate-400 font-mono">Dudas o fallas: <b>0424-7357549</b></p>
-                <p class="text-[8px] text-slate-500 uppercase tracking-widest pt-1">TCL SISTEMA STREAMING 2026 &bull; TUCOCEL C.A.</p>
+                <p class="text-[8px] text-slate-500 uppercase tracking-widest pt-1">TCL SISTEMA STREAMING 2026 &bull; PUBLIONLINEMK</p>
             </div>
         </div>
     </div>
 
-    <!-- PANTALLA 2: CORTE / PAUSADO -->
+    <!-- PANTALLA 2: CORTE / PAUSADO / ANULADO -->
     <div id="vista-bloqueo-pausado" class="hidden min-h-screen flex flex-col justify-center items-center p-4 text-center">
         <div class="card-dark w-full max-w-sm rounded-3xl p-6 space-y-4 border-2 border-red-500/60 shadow-2xl">
             <div class="w-14 h-14 bg-red-950/60 border border-red-500/50 rounded-2xl flex items-center justify-center mx-auto text-red-500 text-2xl animate-pulse">
                 <i class="fa-solid fa-lock"></i>
             </div>
             <div class="space-y-1.5">
-                <h3 id="txt-titulo-bloqueo" class="text-base font-black text-white uppercase tracking-tight">Acceso Pausado</h3>
+                <h3 id="txt-titulo-bloqueo" class="text-base font-black text-white uppercase tracking-tight">Acceso Suspendido</h3>
                 <p id="txt-motivo-bloqueo" class="text-xs text-slate-400 font-medium leading-relaxed">
-                    Tu membresía o período de prueba ha finalizado. Tus datos, clientes y cuentas se mantienen seguros.
+                    Tu membresía o período de prueba ha finalizado. Tus datos, clientes y cuentas se mantienen seguros y respaldados.
                 </p>
             </div>
             <div class="bg-[#0a0a12] p-2.5 rounded-xl border border-neutral-800 text-[10px] text-slate-300 font-mono">
@@ -120,7 +125,7 @@
                 <strong class="text-emerald-400 block text-xs mt-0.5">0424-7357549</strong>
             </div>
             <button onclick="contactarSoporteMaster()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl uppercase tracking-wider text-xs shadow-lg flex items-center justify-center gap-2">
-                <i class="fa-brands fa-whatsapp text-sm"></i> Contactar Administrador
+                <i class="fa-brands fa-whatsapp text-sm"></i> Contactar al Administrador
             </button>
             <button onclick="cerrarSesion()" class="text-slate-500 text-[10px] uppercase font-bold hover:text-white">
                 Cerrar Sesión
@@ -137,7 +142,7 @@
                 </div>
                 <div>
                     <h1 class="text-xs font-black tracking-wider uppercase text-white">Panel <span class="text-amber-400">Master</span></h1>
-                    <span class="text-[8.5px] text-slate-400 font-bold block leading-none">SuperAdmin Central</span>
+                    <span id="master-cloud-badge" class="text-[8.5px] text-slate-400 font-bold block leading-none">Cloud Firestore</span>
                 </div>
             </div>
             <div class="flex gap-2 items-center">
@@ -189,15 +194,18 @@
                     <i class="fa-solid fa-play"></i>
                 </div>
                 <div>
-                    <h1 class="text-xs md:text-sm font-black tracking-wider uppercase text-white" id="header-nombre-negocio">StreamPanel <span class="text-purple-400">Pro</span></h1>
+                    <h1 class="text-xs md:text-sm font-black tracking-wider uppercase text-white flex items-center gap-1.5">
+                        <span id="header-nombre-negocio">StreamPanel Pro</span>
+                        <span id="status-sync-indicator" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" title="Sincronizando..."></span>
+                    </h1>
                     <span id="header-badge-dias-licencia" class="text-[8.5px] md:text-[9.5px] font-mono font-bold text-emerald-400 block leading-none">30 Días de Membresía</span>
                 </div>
             </div>
             <div class="flex gap-2 items-center">
-                <button onclick="abrirModalProveedores()" class="bg-neutral-800 hover:bg-neutral-700 text-slate-200 font-black text-xs px-2.5 py-1.5 rounded-xl uppercase tracking-wider flex items-center gap-1 border border-neutral-700">
+                <button onclick="abrirModalProveedores()" class="btn-operativo bg-neutral-800 hover:bg-neutral-700 text-slate-200 font-black text-xs px-2.5 py-1.5 rounded-xl uppercase tracking-wider flex items-center gap-1 border border-neutral-700">
                     <i class="fa-solid fa-server text-[11px] text-purple-400"></i> <span class="text-[10px]">Proveedores</span>
                 </button>
-                <button onclick="abrirModalVenta()" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-xs px-3 py-1.5 rounded-xl uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-purple-600/30">
+                <button onclick="abrirModalVenta()" class="btn-operativo bg-purple-600 hover:bg-purple-500 text-white font-black text-xs px-3 py-1.5 rounded-xl uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-purple-600/30">
                     <i class="fa-solid fa-plus"></i> <span>Venta</span>
                 </button>
             </div>
@@ -233,7 +241,7 @@
                 <div id="grid-plataformas-fijas" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2"></div>
             </div>
 
-            <!-- 3. BUSCADOR GLOBAL Y EXPORTADOR -->
+            <!-- 3. BUSCADOR Y EXPORTADOR -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div class="md:col-span-2 relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
@@ -251,7 +259,7 @@
         <!-- PIE INSTITUCIONAL -->
         <footer class="text-center p-4 border-t border-neutral-900 space-y-0.5 mb-14">
             <p class="text-[8.5px] md:text-[10px] text-slate-300 font-bold uppercase">TCL SISTEMA STREAMING 2026 ES UN SISTEMA DE TUCOCEL C.A.</p>
-            <p class="text-[7.5px] md:text-[9px] text-slate-500 uppercase">DESARROLLADO POR PUBLITASAMK (AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.)</p>
+            <p class="text-[7.5px] md:text-[9px] text-slate-500 uppercase">DESARROLLADO POR PUBLIONLINEMK (AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.)</p>
         </footer>
 
         <!-- NAVEGACIÓN INFERIOR VENDEDOR -->
@@ -564,8 +572,41 @@
         </div>
     </div>
 
-    <!-- SCRIPT CENTRAL -->
+    <!-- SCRIPT CENTRAL CON BLINDAJE ANTI-SOBREESCRITURA -->
     <script>
+        // CONFIGURACIÓN OFUSCADA DE FIREBASE
+        const _p1 = "dHVjb2NlbC12aXRyaW5h"; // tucocel-vitrina
+        const _fbDomain = atob(_p1) + ".firebaseapp.com";
+        const _fbBucket = atob(_p1) + ".appspot.com";
+        const _fbProject = atob(_p1);
+
+        const _k = "TU_API_KEY_AQUI"; 
+        const _m = "TU_MESSAGING_ID";
+        const _a = "TU_APP_ID";
+
+        let dbFirestore = null;
+        let cloudActiva = false;
+        let unsubscribeVendedorRealtime = null;
+        let estaSincronizadoNube = false; // Candado inicial anti-carrera
+
+        try {
+            if (_k !== "TU_API_KEY_AQUI") {
+                const firebaseConfig = {
+                    apiKey: _k,
+                    authDomain: _fbDomain,
+                    projectId: _fbProject,
+                    storageBucket: _fbBucket,
+                    messagingSenderId: _m,
+                    appId: _a
+                };
+                firebase.initializeApp(firebaseConfig);
+                dbFirestore = firebase.firestore();
+                cloudActiva = true;
+            }
+        } catch (e) {
+            console.warn("Modo offline / local activo:", e);
+        }
+
         const NUMERO_SOPORTE_OFICIAL = "04247357549";
 
         let dbMasterVendedores = JSON.parse(localStorage.getItem('sp_master_vendedores')) || [];
@@ -582,6 +623,29 @@
         let filtroEstadoActual = 'TODOS';
         let proveedorAcordeonAbierto = null;
         let temporizadorInactividad = null;
+
+        // ================= GESTOR DEL CANDADO DE INTERFAZ =================
+        function aplicarCandadoSincronizacion(bloquear) {
+            estaSincronizadoNube = !bloquear;
+            const botones = document.querySelectorAll('.btn-operativo');
+            const ind = document.getElementById('status-sync-indicator');
+            
+            botones.forEach(b => {
+                b.disabled = bloquear;
+                b.style.opacity = bloquear ? '0.5' : '1';
+                b.style.pointerEvents = bloquear ? 'none' : 'auto';
+            });
+
+            if (ind) {
+                if (bloquear) {
+                    ind.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+                    ind.title = "Descargando última versión de la nube...";
+                } else {
+                    ind.className = "w-2 h-2 rounded-full bg-emerald-400";
+                    ind.title = "Sincronizado y protegido contra sobreescritura";
+                }
+            }
+        }
 
         function getHoyISO() {
             const d = new Date();
@@ -631,7 +695,6 @@
             return window.location.origin + window.location.pathname;
         }
 
-        // ================= CANAL DIRECTO A WHATSAPP DEL CLIENTE =================
         function abrirWhatsAppDirecto(tlf) {
             let clean = String(tlf || '').replace(/\D/g, '');
             if (clean.length === 11 && clean.startsWith('0')) clean = '58' + clean.substring(1);
@@ -674,7 +737,8 @@
             }, 2500);
         }
 
-        function ejecutarLogin(e) {
+        // ================= AUTENTICACIÓN DIRECTA =================
+        async function ejecutarLogin(e) {
             e.preventDefault();
             const u = document.getElementById('login-user').value.trim().toLowerCase();
             const p = document.getElementById('login-pass').value.trim();
@@ -693,13 +757,28 @@
                 return;
             }
 
+            if (cloudActiva) {
+                try {
+                    const snap = await dbFirestore.collection("saas_vendedores").get();
+                    if (!snap.empty) {
+                        dbMasterVendedores = snap.docs.map(doc => doc.data());
+                        localStorage.setItem('sp_master_vendedores', JSON.stringify(dbMasterVendedores));
+                    }
+                } catch (err) {}
+            }
+
             const vendedor = dbMasterVendedores.find(x => x.usuario.toLowerCase() === u && x.clave === p);
             if (!vendedor) {
                 return alert("❌ Usuario o contraseña incorrectos.");
             }
 
             if (vendedor.estado === 'ELIMINADO_DEF') {
-                return alert("🚫 ACCESO REVOCADO: Esta cuenta ha sido eliminada del servidor.");
+                return alert("🚫 ACCESO REVOCADO: Esta cuenta ha sido eliminada definitivamente.");
+            }
+
+            if (vendedor.estado === 'ANULADO') {
+                mostrarPantallaBloqueoPausado(vendedor, false, true);
+                return;
             }
 
             const diasLicencia = calcularDiasRestantes(vendedor.fecha, vendedor.meses, vendedor.diasPrueba || 0);
@@ -729,6 +808,11 @@
         }
 
         function cerrarSesion() {
+            if (unsubscribeVendedorRealtime) {
+                unsubscribeVendedorRealtime();
+                unsubscribeVendedorRealtime = null;
+            }
+
             sessionStorage.removeItem('sp_sesion_activa');
             localStorage.removeItem('sp_sesion_persistente');
             sesionActual = null;
@@ -746,7 +830,7 @@
             document.getElementById('vista-login').classList.remove('hidden');
         }
 
-        function mostrarPantallaBloqueoPausado(vendedor, esDemo = false) {
+        function mostrarPantallaBloqueoPausado(vendedor, esDemo = false, esAnulado = false) {
             document.getElementById('capsula-flotante-salir').classList.add('hidden');
             document.getElementById('vista-login').classList.add('hidden');
             document.getElementById('vista-master').classList.add('hidden');
@@ -756,7 +840,10 @@
             const tit = document.getElementById('txt-titulo-bloqueo');
             const mot = document.getElementById('txt-motivo-bloqueo');
 
-            if (esDemo) {
+            if (esAnulado) {
+                tit.innerText = "Acceso Suspendido / En Bóveda";
+                mot.innerText = `Hola ${vendedor.nombre}, tu cuenta ha sido enviada a bóveda de espera. Tus datos están completamente seguros y respaldados. Comunícate con el administrador para reactivarla.`;
+            } else if (esDemo) {
                 tit.innerText = "Período de Prueba Finalizado";
                 mot.innerText = `Hola ${vendedor.nombre}, tu tiempo de demostración gratuita ha concluido. Si deseas activar el sistema formalmente, contacta al soporte técnico.`;
             } else {
@@ -771,18 +858,44 @@
             abrirWhatsAppConMensaje(NUMERO_SOPORTE_OFICIAL, msg);
         }
 
-        function iniciarModoMaster() {
+        // ================= CONSOLA MASTER =================
+        async function iniciarModoMaster() {
             document.getElementById('vista-login').classList.add('hidden');
             document.getElementById('vista-vendedor').classList.add('hidden');
             document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
             document.getElementById('banner-impersonacion').classList.add('hidden');
             document.getElementById('capsula-flotante-salir').classList.add('hidden');
             document.getElementById('vista-master').classList.remove('hidden');
+
+            if (cloudActiva) {
+                try {
+                    const snap = await dbFirestore.collection("saas_vendedores").get();
+                    if (!snap.empty) {
+                        dbMasterVendedores = snap.docs.map(doc => doc.data());
+                        localStorage.setItem('sp_master_vendedores', JSON.stringify(dbMasterVendedores));
+                    }
+                    document.getElementById('master-cloud-badge').innerText = "🟢 Cloud Firestore Activa";
+                } catch(e) {
+                    document.getElementById('master-cloud-badge').innerText = "🟡 Modo Local";
+                }
+            }
             renderizarBandejaMaster();
         }
 
-        function guardarMasterVendedores() {
+        async function guardarMasterVendedores() {
             localStorage.setItem('sp_master_vendedores', JSON.stringify(dbMasterVendedores));
+            if (cloudActiva) {
+                try {
+                    const batch = dbFirestore.batch();
+                    dbMasterVendedores.forEach(v => {
+                        const ref = dbFirestore.collection("saas_vendedores").doc(v.id);
+                        batch.set(ref, v, { merge: true });
+                    });
+                    await batch.commit();
+                } catch(e) {
+                    console.error("Error al sincronizar con Firestore:", e);
+                }
+            }
         }
 
         function alternarBovedaAnuladosMaster() {
@@ -987,7 +1100,7 @@
             document.getElementById('modal-vendedor-master').classList.add('hidden');
         }
 
-        function guardarVendedorMaster(e) {
+        async function guardarVendedorMaster(e) {
             e.preventDefault();
             const editId = document.getElementById('master-edit-vendedor-id').value;
             const nom = document.getElementById('m-vendedor-nombre').value.trim().toUpperCase();
@@ -1033,10 +1146,10 @@
                 dbMasterVendedores.unshift(nuevo);
             }
 
-            guardarMasterVendedores();
+            await guardarMasterVendedores();
             cerrarModalNuevoVendedor();
             renderizarBandejaMaster();
-            alert("💾 Vendedor guardado con éxito.");
+            alert("💾 Vendedor sincronizado en la nube con éxito.");
         }
 
         function despacharCredencialesRevendedor(id) {
@@ -1058,7 +1171,7 @@
                         `• Este enlace y credenciales son personales e intransferibles.\n` +
                         `• No compartas tus claves con terceros; no nos hacemos responsables por el mal uso o pérdida de información.\n` +
                         `• Esta membresía es un alquiler por suscripción, no constituye la compra definitiva del software.\n\n` +
-                        `🏛️ *TCL SISTEMA STREAMING 2026 ES UN SISTEMA DE TUCOCEL C.A. DESARROLLADO POR PUBLITASAMK (AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.)*\n` +
+                        `🏛️ *TCL SISTEMA STREAMING 2026 ES UN SISTEMA DE TUCOCEL C.A. DESARROLLADO POR PUBLIONLINEMK (AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.)*\n` +
                         `📞 Soporte Técnico Oficial Único: 0424-7357549`;
 
             abrirWhatsAppConMensaje(v.telefono, msg);
@@ -1079,7 +1192,7 @@
             document.getElementById('modal-caja-master').classList.add('hidden');
         }
 
-        function confirmarPagoCajaMaster() {
+        async function confirmarPagoCajaMaster() {
             const id = document.getElementById('caja-vendedor-id').value;
             const v = dbMasterVendedores.find(x => x.id === id);
             if (!v) return;
@@ -1094,22 +1207,27 @@
             v.meses = (v.meses || 0) + mesesExt;
             v.estado = 'ACTIVO';
 
-            guardarMasterVendedores();
+            await guardarMasterVendedores();
             cerrarModalCajaMaster();
             renderizarBandejaMaster();
             alert(`✅ Cobro registrado. Membresía extendida por ${mesesExt} mes(es).`);
         }
 
-        function anularVendedorHaciaBoveda(id) {
+        async function anularVendedorHaciaBoveda(id) {
             const v = dbMasterVendedores.find(x => x.id === id);
             if (!v) return;
-            if (!confirm(`¿Mover a [${v.nombre}] a la Bóveda de Anulados? (Se suspenderá su acceso pero sus datos quedarán seguros)`)) return;
+            if (!confirm(`¿Mover a [${v.nombre}] a la Bóveda de Anulados? (Se suspenderá su acceso inmediatamente pero sus datos quedarán seguros)`)) return;
             v.estado = 'ANULADO';
-            guardarMasterVendedores();
+            await guardarMasterVendedores();
+
+            if (sesionActual && sesionActual.id === v.id) {
+                cerrarSesion();
+            }
+
             renderizarBandejaMaster();
         }
 
-        function reactivarVendedorDesdeBoveda(id) {
+        async function reactivarVendedorDesdeBoveda(id) {
             const v = dbMasterVendedores.find(x => x.id === id);
             if (!v) return;
             const m = parseInt(prompt("Ingrese los meses a renovar:", "1")) || 1;
@@ -1118,19 +1236,25 @@
             v.tipoDuracion = 'MESES';
             v.diasPrueba = 0;
             v.estado = 'ACTIVO';
-            guardarMasterVendedores();
+            await guardarMasterVendedores();
             renderizarBandejaMaster();
             alert(`♻️ Vendedor [${v.nombre}] reactivado exitosamente.`);
         }
 
-        function eliminarDefinitivoVendedor(id) {
+        async function eliminarDefinitivoVendedor(id) {
             const v = dbMasterVendedores.find(x => x.id === id);
             if (!v) return;
             if (!confirm(`🛑 ATENCIÓN: ¿Eliminar definitivamente a [${v.nombre}]? Se borrarán clientes, cuentas y su enlace. ¡PERDIÓ EL AÑO!`)) return;
 
             localStorage.removeItem(`sp_data_${v.id}`);
+            if (cloudActiva) {
+                try {
+                    await dbFirestore.collection("saas_vendedores").doc(v.id).delete();
+                    await dbFirestore.collection("saas_data").doc(v.id).delete();
+                } catch(e) {}
+            }
             dbMasterVendedores = dbMasterVendedores.filter(x => x.id !== id);
-            guardarMasterVendedores();
+            await guardarMasterVendedores();
             renderizarBandejaMaster();
             alert("🗑️ Vendedor y datos eliminados de forma irrecuperable.");
         }
@@ -1155,6 +1279,7 @@
             iniciarModoMaster();
         }
 
+        // ================= DASHBOARD DEL REVENDEDOR CON ON-SNAPSHOT (ANTI-CARRERA) =================
         function iniciarModoVendedor(vendedorId) {
             document.getElementById('vista-login').classList.add('hidden');
             document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
@@ -1171,26 +1296,76 @@
                 else badge.className = "text-[8.5px] md:text-[9.5px] font-mono font-bold text-emerald-400 block leading-none";
             }
 
+            // APLICAR CANDADO MIENTRAS CONECTA A LA NUBE
+            aplicarCandadoSincronizacion(true);
+
+            // Cargar caché local inmediato mientras conecta Firestore
             const dataKey = `sp_data_${vendedorId}`;
             const dataV = JSON.parse(localStorage.getItem(dataKey)) || { ventas: [], cuentas: [] };
             dbVentas = dataV.ventas || [];
             dbCuentas = dataV.cuentas || [];
+            actualizarMetricasYChismoseador();
+            renderizarBandejaClientes();
+
+            // CONEXIÓN EN TIEMPO REAL CON FIRESTORE (EVITA SOBREESCRITURAS)
+            if (cloudActiva) {
+                if (unsubscribeVendedorRealtime) unsubscribeVendedorRealtime();
+
+                unsubscribeVendedorRealtime = dbFirestore.collection("saas_data").doc(vendedorId)
+                    .onSnapshot((doc) => {
+                        if (doc.exists) {
+                            const cloudData = doc.data();
+                            // FUSIÓN INTELIGENTE ANTI-PISADA: Si local tiene ventas no guardadas, fusionar por ID
+                            const mapaVentas = new Map();
+                            (cloudData.ventas || []).forEach(item => mapaVentas.set(item.id, item));
+                            dbVentas.forEach(item => { if (!mapaVentas.has(item.id)) mapaVentas.set(item.id, item); });
+
+                            const mapaCuentas = new Map();
+                            (cloudData.cuentas || []).forEach(item => mapaCuentas.set(item.id, item));
+                            dbCuentas.forEach(item => { if (!mapaCuentas.has(item.id)) mapaCuentas.set(item.id, item); });
+
+                            dbVentas = Array.from(mapaVentas.values());
+                            dbCuentas = Array.from(mapaCuentas.values());
+
+                            localStorage.setItem(dataKey, JSON.stringify({ ventas: dbVentas, cuentas: dbCuentas }));
+                        }
+                        // LIBERAR CANDADO DE ESCRITURA
+                        aplicarCandadoSincronizacion(false);
+                        actualizarMetricasYChismoseador();
+                        renderizarBandejaClientes();
+                        actualizarSelectCuentasMadre();
+                    }, (err) => {
+                        console.warn("Fallo temporal en escucha Firestore:", err);
+                        aplicarCandadoSincronizacion(false); // Liberar en fallback
+                    });
+            } else {
+                aplicarCandadoSincronizacion(false);
+            }
 
             filtroServicioActual = 'PLEGADO';
             filtroEstadoActual = 'TODOS';
             document.getElementById('lbl-filtro-activo').innerText = 'Panel Plegado';
             document.getElementById('in-busqueda').value = '';
-
             poblarSelectServicios();
-            actualizarMetricasYChismoseador();
-            renderizarBandejaClientes();
         }
 
-        function guardarDatosVendedorActual() {
+        // GUARDADO ATÓMICO EN FIRESTORE CON MERGE
+        async function guardarDatosVendedorActual() {
             const vId = esModoMasterImpersonacion ? vendedorIdImpersonado : (sesionActual ? sesionActual.id : null);
             if (!vId) return;
+
             const dataKey = `sp_data_${vId}`;
-            localStorage.setItem(dataKey, JSON.stringify({ ventas: dbVentas, cuentas: dbCuentas }));
+            const pack = { ventas: dbVentas, cuentas: dbCuentas, ultimaModif: Date.now() };
+            localStorage.setItem(dataKey, JSON.stringify(pack));
+
+            if (cloudActiva) {
+                try {
+                    // Escritura protegida por fusión (Merge: true) para evitar pisar campos ajenos
+                    await dbFirestore.collection("saas_data").doc(vId).set(pack, { merge: true });
+                } catch (e) {
+                    console.error("Error en persistencia Firestore:", e);
+                }
+            }
         }
 
         function abrirModalMiPerfil() {
@@ -1200,7 +1375,7 @@
         function cerrarModalMiPerfil() {
             document.getElementById('modal-mi-perfil').classList.add('hidden');
         }
-        function guardarNuevaClaveVendedor(e) {
+        async function guardarNuevaClaveVendedor(e) {
             e.preventDefault();
             const nueva = document.getElementById('perfil-nueva-clave').value.trim();
             if (!nueva) return;
@@ -1210,7 +1385,7 @@
             if (v) {
                 v.clave = nueva;
                 v.claveModificada = true;
-                guardarMasterVendedores();
+                await guardarMasterVendedores();
                 cerrarModalMiPerfil();
                 alert("🔒 Contraseña actualizada correctamente.");
             }
@@ -1341,7 +1516,6 @@
             });
         }
 
-        // ================= DISPARO DIRECTO A WHATSAPP DEL CLIENTE =================
         function enviarAcceso(id) {
             const v = dbVentas.find(x => x.id === id);
             if (!v) return;
@@ -1373,14 +1547,14 @@
             abrirWhatsAppConMensaje(v.tlf, msg);
         }
 
-        function renovarUnMes(id) {
+        async function renovarUnMes(id) {
             const v = dbVentas.find(x => x.id === id);
             if (!v) return;
             const [y, m, d] = (v.fecha || getHoyISO()).split('-').map(Number);
             const fObj = new Date(y, m - 1, d);
             fObj.setMonth(fObj.getMonth() + 1);
             v.fecha = `${fObj.getFullYear()}-${String(fObj.getMonth() + 1).padStart(2, '0')}-${String(fObj.getDate()).padStart(2, '0')}`;
-            guardarDatosVendedorActual();
+            await guardarDatosVendedorActual();
             actualizarMetricasYChismoseador();
             renderizarBandejaClientes();
             alert(`⚡ ${v.cliente} renovado por 1 mes adicional.`);
@@ -1441,7 +1615,7 @@
             document.getElementById('modal-formulario-venta').classList.add('hidden');
         }
 
-        function guardarFormularioVenta(e) {
+        async function guardarFormularioVenta(e) {
             e.preventDefault();
             const editId = document.getElementById('form-edit-id').value;
 
@@ -1472,11 +1646,10 @@
                     fecha: document.getElementById('form-fecha').value || getHoyISO()
                 };
                 dbVentas.unshift(nueva);
-                // Apertura inmediata del chat de WhatsApp con el número del cliente
                 enviarAcceso(nueva.id);
             }
 
-            guardarDatosVendedorActual();
+            await guardarDatosVendedorActual();
             cerrarModalVenta();
             actualizarMetricasYChismoseador();
             renderizarBandejaClientes();
@@ -1619,7 +1792,7 @@
             document.getElementById('cta-meses').value = '1';
         }
 
-        function guardarCuentaProveedor(e) {
+        async function guardarCuentaProveedor(e) {
             e.preventDefault();
             const editId = document.getElementById('cta-edit-id').value;
 
@@ -1641,7 +1814,7 @@
                 dbCuentas.unshift(ctaData);
             }
 
-            guardarDatosVendedorActual();
+            await guardarDatosVendedorActual();
             limpiarFormularioProveedor();
             renderizarListaProveedores();
             actualizarSelectCuentasMadre();
@@ -1668,12 +1841,12 @@
             document.getElementById('modal-proveedores').querySelector('.overflow-y-auto').scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function borrarCuentaProveedor(id) {
+        async function borrarCuentaProveedor(id) {
             const c = dbCuentas.find(x => x.id === id);
             if (!c) return;
             if (!confirm(`¿Eliminar la cuenta [${c.correo}] del proveedor ${c.proveedor}?`)) return;
             dbCuentas = dbCuentas.filter(x => x.id !== id);
-            guardarDatosVendedorActual();
+            await guardarDatosVendedorActual();
             renderizarListaProveedores();
             actualizarSelectCuentasMadre();
         }
@@ -1834,17 +2007,40 @@
             cerrarModalNuevaPlat();
         }
 
-        // ================= INICIALIZACIÓN CON SOPORTE SLUG =================
-        window.onload = () => {
+        // ================= DETECCIÓN ESTRICTA AL CARGAR =================
+        window.onload = async () => {
             const hashSlug = window.location.hash ? window.location.hash.replace('#', '').trim().toLowerCase() : '';
+
+            if (cloudActiva) {
+                try {
+                    const snap = await dbFirestore.collection("saas_vendedores").get();
+                    if (!snap.empty) {
+                        dbMasterVendedores = snap.docs.map(doc => doc.data());
+                        localStorage.setItem('sp_master_vendedores', JSON.stringify(dbMasterVendedores));
+                    }
+                } catch(e) {}
+            }
 
             if (hashSlug) {
                 const vendedorEnlace = dbMasterVendedores.find(x => x.slug === hashSlug);
 
                 if (!vendedorEnlace || vendedorEnlace.estado === 'ELIMINADO_DEF') {
-                    alert("🚫 ENLACE REVOCADO: Este enlace comercial ya no existe en el servidor.");
+                    alert("🚫 ENLACE REVOCADO: Este enlace ya no existe en el servidor.");
                     window.location.hash = '';
                     cerrarSesion();
+                    return;
+                }
+
+                if (vendedorEnlace.estado === 'ANULADO') {
+                    cerrarSesion();
+                    mostrarPantallaBloqueoPausado(vendedorEnlace, false, true);
+                    return;
+                }
+
+                const d = calcularDiasRestantes(vendedorEnlace.fecha, vendedorEnlace.meses, vendedorEnlace.diasPrueba || 0);
+                if (d < 0 || vendedorEnlace.estado === 'PAUSADO') {
+                    cerrarSesion();
+                    mostrarPantallaBloqueoPausado(vendedorEnlace, d < 0 && vendedorEnlace.tipoDuracion === 'DIAS_PRUEBA');
                     return;
                 }
 
@@ -1857,9 +2053,16 @@
                     iniciarModoMaster();
                 } else if (sesionActual.tipo === 'VENDEDOR') {
                     const vendedor = dbMasterVendedores.find(x => x.id === sesionActual.id);
-                    if (vendedor && vendedor.estado !== 'ELIMINADO_DEF' && vendedor.estado !== 'ANULADO') {
+                    if (vendedor && vendedor.estado !== 'ELIMINADO_DEF') {
+                        if (vendedor.estado === 'ANULADO') {
+                            cerrarSesion();
+                            mostrarPantallaBloqueoPausado(vendedor, false, true);
+                            return;
+                        }
+
                         const d = calcularDiasRestantes(vendedor.fecha, vendedor.meses, vendedor.diasPrueba || 0);
                         if (d < 0 || vendedor.estado === 'PAUSADO') {
+                            cerrarSesion();
                             mostrarPantallaBloqueoPausado(vendedor, d < 0 && vendedor.tipoDuracion === 'DIAS_PRUEBA');
                         } else {
                             iniciarModoVendedor(vendedor.id);
