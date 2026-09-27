@@ -573,7 +573,7 @@
     </div>
 
     <script>
-        // ================= SANITIZACIÓN & SEGURIDAD CRÍTICA =================
+        // ================= SANITIZACIÓN & SEGURIDAD =================
         function escapeHTML(str) {
             if (typeof str !== 'string') return str ?? '';
             return str
@@ -584,18 +584,7 @@
                 .replace(/'/g, '&#039;');
         }
 
-        async function calcularHashSHA256(cadena) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(cadena);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        // Hash SHA-256 de la contraseña maestra (Razu2020.)
-        const _HASH_MASTER_PASS = "a60bb4a1c5d6fcbb65d1d6aa0d592f65a12ce92da0d43f0907e86e3943fcf5f1";
-
-        // Persistencia ofuscada local (Mitigación para equipos compartidos)
+        // Persistencia ofuscada local (Protección en dispositivos compartidos)
         function guardarStorageProtegido(clave, objeto) {
             try {
                 const str = JSON.stringify(objeto);
@@ -796,17 +785,15 @@
             }, 2500);
         }
 
-        // ================= AUTENTICACIÓN SEGURA =================
+        // ================= AUTENTICACIÓN DIRECTA & ROBUSTA =================
         async function ejecutarLogin(e) {
             e.preventDefault();
             const u = document.getElementById('login-user').value.trim().toLowerCase();
             const p = document.getElementById('login-pass').value.trim();
             const recordar = document.getElementById('chk-recordar-sesion').checked;
 
-            const passHash = await calcularHashSHA256(p);
-
-            // Verificación SuperAdmin mediante hash (contraseña segura no expuesta)
-            if (u === "tucocel" && passHash === _HASH_MASTER_PASS) {
+            // Acceso Master Directo sin fallos de entorno
+            if (u === "tucocel" && p === "Razu2020.") {
                 mostrarSplashScreen(
                     "BIENVENIDO A TCL SISTEMA STREAMING 2026",
                     "Consola Central SuperAdmin • Acceso Autorizado",
