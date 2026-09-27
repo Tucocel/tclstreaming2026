@@ -21,6 +21,9 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .card-dark { background: #11111e; border: 1px solid rgba(255, 255, 255, 0.07); }
+        .glass-panel { background: rgba(17, 17, 30, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .input-clean-dark { width: 100%; background-color: #0a0a12; border: 1px solid #27273a; padding: 0.6rem 0.8rem; border-radius: 0.75rem; color: #ffffff; font-weight: 700; outline: none; font-size: 0.8rem; }
+        .input-clean-dark:focus { border-color: #a855f7; box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.25); }
         @keyframes pulsoAlerta {
             0%, 100% { border-color: rgba(245, 158, 11, 0.9); box-shadow: 0 0 10px rgba(245, 158, 11, 0.35); }
             50% { border-color: rgba(245, 158, 11, 0.2); box-shadow: none; }
@@ -133,7 +136,7 @@
         </div>
     </div>
 
-    <!-- PANTALLA 3: CONSOLA MASTER (SUPERADMIN) -->
+    <!-- PANTALLA 3: CONSOLA MASTER (DISEÑO ENCAPSULADO Y LIMPIO) -->
     <div id="vista-master" class="hidden flex flex-col w-full">
         <header class="bg-[#0e0e1a]/95 border-b border-neutral-800 px-4 py-3 sticky top-0 z-40 backdrop-blur-md flex justify-between items-center">
             <div class="flex items-center gap-2">
@@ -155,14 +158,45 @@
             </div>
         </header>
 
-        <main class="p-3.5 max-w-5xl mx-auto w-full space-y-4">
+        <main class="p-3.5 max-w-4xl mx-auto w-full space-y-4">
+            <!-- 1. BLOQUE DE COTIZACIÓN CAMBIARIA FRONTERA -->
+            <div class="card-dark p-3.5 rounded-2xl border-amber-500/30 space-y-2">
+                <div class="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
+                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-calculator"></i> Cotización Cambiaria Global (Frontera Táchira - Cúcuta)
+                    </span>
+                    <span class="text-[8.5px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/40">
+                        Sincronización en Vivo
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 font-mono">
+                    <div class="bg-[#0a0a12] p-2.5 rounded-xl border border-neutral-800 flex items-center justify-between gap-2">
+                        <div class="min-w-0 flex-1">
+                            <label class="text-[9.5px] font-black text-slate-300 uppercase block truncate">🇨🇴 Tasa USDT / Pesos (COP)</label>
+                            <span class="text-[8px] text-slate-500 block">Pesos colombianos por cada USDT</span>
+                        </div>
+                        <input type="number" id="master-tasa-cop" value="3600" onchange="actualizarTasasGlobalesMaster()" class="input-clean-dark font-mono text-amber-400 text-sm font-black w-24 py-1 shrink-0 text-center">
+                    </div>
+
+                    <div class="bg-[#0a0a12] p-2.5 rounded-xl border border-neutral-800 flex items-center justify-between gap-2">
+                        <div class="min-w-0 flex-1">
+                            <label class="text-[9.5px] font-black text-slate-300 uppercase block truncate">🇻🇪 Factor Paridad Cúcuta Bs</label>
+                            <span class="text-[8px] text-slate-500 block">Relación cambio Bolívares</span>
+                        </div>
+                        <input type="number" step="0.1" id="master-tasa-bs" value="3.3" onchange="actualizarTasasGlobalesMaster()" class="input-clean-dark font-mono text-emerald-400 text-sm font-black w-20 py-1 shrink-0 text-center">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. MÉTRICAS RESUMEN -->
             <div class="grid grid-cols-3 gap-2 text-center font-mono">
                 <div class="card-dark p-3 rounded-2xl">
-                    <span class="text-[8px] md:text-[9.5px] text-slate-400 uppercase font-sans font-bold block">Vendedores</span>
+                    <span class="text-[8px] md:text-[9.5px] text-slate-400 uppercase font-sans font-bold block">Revendedores</span>
                     <span id="master-met-total" class="text-base md:text-xl font-black text-amber-400">0</span>
                 </div>
                 <div class="card-dark p-3 rounded-2xl">
-                    <span class="text-[8px] md:text-[9.5px] text-slate-400 uppercase font-sans font-bold block">Cobrar Hoy</span>
+                    <span class="text-[8px] md:text-[9.5px] text-slate-400 uppercase font-sans font-bold block">Por Cobrar</span>
                     <span id="master-met-cobrar" class="text-base md:text-xl font-black text-yellow-400">0</span>
                 </div>
                 <div class="card-dark p-3 rounded-2xl">
@@ -171,19 +205,69 @@
                 </div>
             </div>
 
-            <div class="flex justify-between items-center px-1">
-                <span id="master-lbl-seccion-actual" class="text-[9px] md:text-xs font-black uppercase text-slate-400 tracking-wider">Vendedores Activos</span>
-                <button onclick="alternarBovedaAnuladosMaster()" id="btn-toggle-boveda" class="bg-neutral-900 border border-neutral-800 hover:border-amber-500 text-amber-400 text-[8.5px] md:text-xs font-black px-3 py-1.5 rounded-xl uppercase tracking-wider">
-                    📂 Ver Bóveda Anulados
-                </button>
+            <!-- 3. CENTRAL DE ACCESOS ENCAPSULADA (NO SE ACUMULAN EN PANTALLA) -->
+            <div class="card-dark p-4 rounded-3xl space-y-3 border-purple-500/30">
+                <span class="text-[10px] font-black text-purple-400 uppercase tracking-wider block border-b border-neutral-800 pb-2">
+                    <i class="fa-solid fa-layer-group mr-1"></i> Módulos de Operación & Clientes
+                </span>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <!-- BOTÓN CÁPSULA 1: BASE DE CLIENTES -->
+                    <button onclick="abrirModalBaseVendedores('ACTIVOS')" class="bg-[#0a0a12] hover:bg-neutral-800 border border-neutral-800 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all shadow active:scale-95 text-center">
+                        <i class="fa-solid fa-users text-xl text-purple-400"></i>
+                        <span class="font-black text-[10.5px] uppercase tracking-wider text-white">Base Clientes<br>(<span id="cnt-badge-activos" class="text-purple-300">0</span>)</span>
+                    </button>
+
+                    <!-- BOTÓN CÁPSULA 2: BÓVEDA INACTIVOS -->
+                    <button onclick="abrirModalBaseVendedores('ANULADOS')" class="bg-[#0a0a12] hover:bg-neutral-800 border border-neutral-800 hover:border-red-500 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all shadow active:scale-95 text-center">
+                        <i class="fa-solid fa-box-archive text-xl text-red-400"></i>
+                        <span class="font-black text-[10.5px] uppercase tracking-wider text-white">Bóveda Inactivos<br>(<span id="cnt-badge-inactivos" class="text-red-400">0</span>)</span>
+                    </button>
+
+                    <!-- BOTÓN CÁPSULA 3: TARIFAS SAAS -->
+                    <button onclick="abrirModalTarifasSaas()" class="bg-[#0a0a12] hover:bg-neutral-800 border border-neutral-800 hover:border-amber-500 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all shadow active:scale-95 text-center">
+                        <i class="fa-solid fa-tags text-xl text-amber-400"></i>
+                        <span class="font-black text-[10.5px] uppercase tracking-wider text-white">Tarifas SaaS<br><span class="text-amber-300 text-[9px]">Planes</span></span>
+                    </button>
+
+                    <!-- BOTÓN CÁPSULA 4: ZONA DE PROPUESTA -->
+                    <button onclick="abrirModalZonaPropuesta()" class="bg-gradient-to-tr from-purple-700 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all shadow-lg active:scale-95 text-center text-white">
+                        <i class="fa-solid fa-paper-plane text-xl"></i>
+                        <span class="font-black text-[10.5px] uppercase tracking-wider leading-tight">Zona Propuesta<br>Cliente</span>
+                    </button>
+                </div>
             </div>
 
-            <div class="space-y-1">
-                <input type="text" id="master-in-buscar" onkeyup="renderizarBandejaMaster()" placeholder="Buscar vendedor, usuario o teléfono..." class="w-full bg-[#11111e] border border-neutral-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-amber-500 font-bold uppercase">
-            </div>
-
-            <div id="contenedor-vendedores-master" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+            <!-- PIE INSTITUCIONAL MASTER -->
+            <footer class="text-center p-3 text-[9.5px] text-slate-500 uppercase tracking-widest space-y-0.5 pt-4">
+                <p class="font-bold text-slate-400">TCL SISTEMA STREAMING 2026 ES UN SISTEMA DE TUCOCEL C.A.</p>
+                <p>DESARROLLADO POR PUBLIONLINEMK (AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.)</p>
+                <p class="text-purple-400 font-mono font-bold pt-1">Soporte Técnico: 0424-7357549</p>
+            </footer>
         </main>
+    </div>
+
+    <!-- MODAL ENCAPSULADO: BASE DE CLIENTES / REVENDEDORES CON BUSCADOR -->
+    <div id="modal-base-vendedores" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 p-3 sm:p-4 flex items-center justify-center hidden">
+        <div class="bg-[#11111e] border border-neutral-800 w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="bg-[#0e0e1a] px-4 py-3.5 text-white flex justify-between items-center shrink-0 border-b border-neutral-800">
+                <h3 id="lbl-titulo-modal-vendedores" class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-users text-purple-400"></i> BASE DE CLIENTES REVENDEDORES
+                </h3>
+                <button onclick="cerrarModalBaseVendedores()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            
+            <div class="p-3 bg-[#0a0a12] border-b border-neutral-800 shrink-0">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
+                    <input type="text" id="busqueda-modal-vendedor" onkeyup="renderizarBandejaMaster()" placeholder="Buscar por comercio, usuario o teléfono..." class="w-full bg-[#11111e] border border-neutral-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 font-bold uppercase font-mono">
+                </div>
+            </div>
+
+            <div class="p-3 sm:p-4 overflow-y-auto no-scrollbar flex-grow space-y-3">
+                <div id="contenedor-vendedores-master" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+            </div>
+        </div>
     </div>
 
     <!-- PANTALLA 4: DASHBOARD VENDEDOR -->
@@ -520,6 +604,92 @@
         </div>
     </div>
 
+    <!-- MODAL: TARIFAS SAAS (PLANES) -->
+    <div id="modal-tarifas-saas" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-3 sm:p-4 flex items-center justify-center hidden">
+        <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="bg-[#0e0e1a] px-4 py-3 text-white flex justify-between items-center shrink-0 border-b border-neutral-800">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-tags text-amber-400 text-xs"></i>
+                    <h3 class="font-black text-xs uppercase tracking-wider">Tarifas SaaS Streaming</h3>
+                </div>
+                <button onclick="cerrarModalTarifasSaas()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <div class="p-4 space-y-3 text-xs font-bold text-slate-300">
+                <div class="grid grid-cols-2 gap-2.5 font-mono">
+                    <div class="bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800 space-y-1">
+                        <span class="text-slate-500 uppercase block text-[9px] font-black">PLAN 1 MES</span>
+                        <input type="number" id="input-tarifas-30" value="10" oninput="recalcularTarifasSaasModal()" class="input-clean-dark font-black text-amber-400 text-sm py-1 font-mono text-center">
+                        <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-neutral-800/80">
+                            <span id="lbl-tarifa-cop-30" class="text-slate-400 block truncate">36.000 COP</span>
+                            <span id="lbl-tarifa-bs-30" class="text-emerald-400 block truncate font-bold">10.909,09 Bs</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800 space-y-1">
+                        <span class="text-slate-500 uppercase block text-[9px] font-black">PLAN 3 MESES</span>
+                        <input type="number" id="input-tarifas-90" value="25" oninput="recalcularTarifasSaasModal()" class="input-clean-dark font-black text-amber-400 text-sm py-1 font-mono text-center">
+                        <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-neutral-800/80">
+                            <span id="lbl-tarifa-cop-90" class="text-slate-400 block truncate">90.000 COP</span>
+                            <span id="lbl-tarifa-bs-90" class="text-emerald-400 block truncate font-bold">27.272,73 Bs</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800 space-y-1">
+                        <span class="text-slate-500 uppercase block text-[9px] font-black">PLAN 6 MESES</span>
+                        <input type="number" id="input-tarifas-180" value="45" oninput="recalcularTarifasSaasModal()" class="input-clean-dark font-black text-amber-400 text-sm py-1 font-mono text-center">
+                        <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-neutral-800/80">
+                            <span id="lbl-tarifa-cop-180" class="text-slate-400 block truncate">162.000 COP</span>
+                            <span id="lbl-tarifa-bs-180" class="text-emerald-400 block truncate font-bold">49.090,91 Bs</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#0a0a12] p-2.5 rounded-2xl border border-purple-500/40 space-y-1">
+                        <span class="text-purple-400 uppercase block text-[9px] font-black">PLAN 1 AÑO</span>
+                        <input type="number" id="input-tarifas-365" value="80" oninput="recalcularTarifasSaasModal()" class="input-clean-dark font-black text-purple-300 text-sm py-1 font-mono text-center">
+                        <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-purple-500/30">
+                            <span id="lbl-tarifa-cop-365" class="text-slate-400 block truncate">288.000 COP</span>
+                            <span id="lbl-tarifa-bs-365" class="text-emerald-400 block truncate font-bold">87.272,73 Bs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="guardarTarifasSaas()" class="w-full bg-amber-500 hover:bg-amber-400 text-neutral-950 font-black py-2.5 rounded-xl uppercase text-xs shadow">
+                    Guardar Tarifas 💾
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ZONA DE PROPUESTA -->
+    <div id="modal-zona-propuesta" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 p-4 flex items-center justify-center hidden">
+        <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl p-5 space-y-3.5">
+            <div class="flex justify-between items-center border-b border-neutral-800 pb-2.5">
+                <div class="flex items-center gap-2 text-purple-400 font-black text-xs uppercase tracking-wider">
+                    <i class="fa-solid fa-play text-sm"></i>
+                    <span>Ecosistema Revendedor Streaming</span>
+                </div>
+                <button onclick="cerrarModalZonaPropuesta()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            <div class="space-y-2 pt-1 text-xs font-bold">
+                <button onclick="accionPropuestaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3.5 rounded-2xl uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all text-center">
+                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                    <span>Enviar Propuesta por WhatsApp</span>
+                </button>
+
+                <button onclick="accionPropuestaWeb()" class="w-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-purple-300 p-3 rounded-2xl uppercase tracking-wider flex items-center justify-between shadow transition-all active:scale-95">
+                    <span>Ver Catálogo Interactivo Web</span>
+                    <i class="fa-solid fa-eye text-purple-400"></i>
+                </button>
+
+                <button onclick="accionPropuestaContrato()" class="w-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-amber-300 p-3 rounded-2xl uppercase tracking-wider flex items-center justify-between shadow transition-all active:scale-95">
+                    <span>Ver Términos y Licencia Digital</span>
+                    <i class="fa-solid fa-file-contract text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: CAJA / COBRANZA -->
     <div id="modal-caja-master" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl">
@@ -572,6 +742,256 @@
         </div>
     </div>
 
+    <!-- VISTA 5: PROPUESTA COMERCIAL & CATÁLOGO STREAMING (REDISIDIO COMERCIAL CLARO Y SIN CONFUSIONES) -->
+    <div id="vista-propuesta-streaming" class="hidden min-h-screen bg-[#07070d] text-white p-3 sm:p-6 w-full overflow-y-auto z-50">
+        <div class="max-w-md mx-auto sm:max-w-4xl space-y-6 px-2 py-4">
+            <div class="flex justify-between items-center border-b border-neutral-800 pb-3">
+                <span class="text-xs font-mono text-purple-400 font-black uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-play"></i> TCL STREAMING 2026 — CATÁLOGO COMERCIAL
+                </span>
+                <button onclick="cerrarVistaPropuestaWeb()" class="bg-neutral-900 hover:bg-neutral-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl border border-neutral-700 text-xs font-black uppercase flex items-center gap-1 transition-all">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Sistema
+                </button>
+            </div>
+
+            <!-- ENCABEZADO DE ALTO IMPACTO -->
+            <header class="text-center space-y-3 pt-2">
+                <span class="bg-purple-500/10 text-purple-400 border border-purple-500/30 text-[10px] sm:text-xs font-black tracking-widest uppercase px-4 py-1.5 rounded-full inline-flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-rocket text-purple-400"></i> SISTEMA SAAS PARA REVENDEDORES 2026
+                </span>
+                <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white uppercase flex items-center justify-center gap-2">
+                    STREAMPANEL <span class="text-purple-400">PRO</span>
+                </h1>
+                <p class="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed max-w-xl mx-auto">
+                    La plataforma ejecutiva que organiza tus pantallas, automatiza tus cobros por WhatsApp y te blinda contra caídas de cuentas en un solo lugar.
+                </p>
+            </header>
+
+            <!-- CAPACIDADES DEL SISTEMA (PRESENTACIÓN TIPO SHOWCASE) -->
+            <section class="space-y-3">
+                <h3 class="text-xs font-black uppercase tracking-widest text-purple-400 border-b border-neutral-800 pb-1.5 flex items-center gap-2">
+                    <i class="fa-solid fa-cube"></i> ¿POR QUÉ TU NEGOCIO NECESITA ESTA HERRAMIENTA?
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="glass-panel p-4 rounded-2xl space-y-2 border border-neutral-800 hover:border-purple-500/50 transition-all">
+                        <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-black text-sm">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h4 class="font-black text-white uppercase text-xs">Cero Confusión de Pantallas</h4>
+                        <p class="text-slate-400 text-[11px] leading-relaxed">
+                            Organiza Netflix, Disney+, Max, Prime, IPTV y Spotify con correo maestro, perfil y PIN individual. Nunca más le darás el mismo acceso a dos clientes.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-2xl space-y-2 border border-neutral-800 hover:border-purple-500/50 transition-all">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-sm">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <h4 class="font-black text-white uppercase text-xs">Cobranza en 1 Toque</h4>
+                        <p class="text-slate-400 text-[11px] leading-relaxed">
+                            El semáforo te alerta 4 días antes del corte. Envía el recordatorio de pago listo y profesional al WhatsApp del cliente con solo presionar un botón.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-2xl space-y-2 border border-neutral-800 hover:border-purple-500/50 transition-all">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-sm">
+                            <i class="fa-solid fa-server"></i>
+                        </div>
+                        <h4 class="font-black text-white uppercase text-xs">Control de Proveedores</h4>
+                        <p class="text-slate-400 text-[11px] leading-relaxed">
+                            ¿Se cayó una cuenta? Toca "Falla" y el sistema genera automáticamente el reclamo con correo, clave y fecha de compra directo al chat de tu proveedor.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TABLA UNIFICADA Y TRANSPARENTE DE PRECIOS Y AHORRO (SIN CONTRADICCIONES) -->
+            <section class="space-y-3 pt-2">
+                <div class="text-center space-y-1">
+                    <span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full inline-block">
+                        TARIFAS OFICIALES & PLANES DISPONIBLES
+                    </span>
+                    <h3 class="font-black text-base sm:text-lg uppercase text-white tracking-tight">
+                        ELIGE EL PLAN QUE MEJOR SE ADAPTE A TU RITMO DE VENTA
+                    </h3>
+                    <p class="text-xs text-slate-400">Precios expresados en USDT con conversión oficial al día en Pesos y Bolívares.</p>
+                </div>
+
+                <!-- 4 TARJETAS CLARAS DE PRECIO UNIFICADO -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-center font-mono">
+                    
+                    <!-- PLAN 1 MES -->
+                    <div class="glass-panel border border-neutral-800 rounded-3xl p-4 flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="text-[9.5px] text-slate-400 font-bold uppercase block tracking-wider">MENSUAL</span>
+                            <h4 class="text-xs font-black text-white uppercase">1 MES (30 DÍAS)</h4>
+                            <div class="text-2xl font-black text-white mt-1"><span id="lbl-prop-plan-30">$10</span> <span class="text-xs text-slate-400">USDT</span></div>
+                            <span class="text-[9px] text-slate-500 uppercase block font-sans">Pago mensual recurrente</span>
+                        </div>
+                        <div id="lbl-prop-plan-30-conv" class="bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800 text-[9.5px] text-slate-400 leading-tight">
+                            <span>36.000 COP</span><br><span class="text-emerald-400 font-bold">10.909,09 Bs</span>
+                        </div>
+                    </div>
+
+                    <!-- PLAN 3 MESES -->
+                    <div class="glass-panel border border-purple-500/40 rounded-3xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden bg-purple-950/10">
+                        <span class="bg-purple-600 text-white font-black text-[8px] px-2 py-0.5 rounded-full absolute top-2 right-2 uppercase">TRIMESTRAL</span>
+                        <div>
+                            <span class="text-[9.5px] text-purple-400 font-bold uppercase block tracking-wider">3 MESES (90 DÍAS)</span>
+                            <h4 class="text-xs font-black text-white uppercase">TRIMESTRE PRO</h4>
+                            <div class="text-2xl font-black text-purple-300 mt-1"><span id="lbl-prop-plan-90">$25</span> <span class="text-xs text-slate-400">USDT</span></div>
+                            <span id="tab-plan-90-badge-ahorro" class="text-[9px] text-emerald-400 font-bold uppercase block font-sans bg-emerald-950/60 py-0.5 rounded-full border border-emerald-500/30 mt-1">¡Ahorras $5 USD!</span>
+                        </div>
+                        <div id="lbl-prop-plan-90-conv" class="bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800 text-[9.5px] text-slate-400 leading-tight">
+                            <span>90.000 COP</span><br><span class="text-emerald-400 font-bold">27.272,73 Bs</span>
+                        </div>
+                    </div>
+
+                    <!-- PLAN 6 MESES -->
+                    <div class="glass-panel border border-blue-500/40 rounded-3xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden bg-blue-950/10">
+                        <span class="bg-blue-600 text-white font-black text-[8px] px-2 py-0.5 rounded-full absolute top-2 right-2 uppercase">MÁS POPULAR</span>
+                        <div>
+                            <span class="text-[9.5px] text-blue-400 font-bold uppercase block tracking-wider">6 MESES (180 DÍAS)</span>
+                            <h4 class="text-xs font-black text-white uppercase">SEMESTRE PRO</h4>
+                            <div class="text-2xl font-black text-blue-300 mt-1"><span id="lbl-prop-plan-180">$45</span> <span class="text-xs text-slate-400">USDT</span></div>
+                            <span id="tab-plan-180-badge-ahorro" class="text-[9px] text-emerald-400 font-bold uppercase block font-sans bg-emerald-950/60 py-0.5 rounded-full border border-emerald-500/30 mt-1">¡Ahorras $15 USD!</span>
+                        </div>
+                        <div id="lbl-prop-plan-180-conv" class="bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800 text-[9.5px] text-slate-400 leading-tight">
+                            <span>162.000 COP</span><br><span class="text-emerald-400 font-bold">49.090,91 Bs</span>
+                        </div>
+                    </div>
+
+                    <!-- PLAN 1 AÑO -->
+                    <div class="glass-panel border border-amber-500/40 rounded-3xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden bg-amber-950/10">
+                        <span class="bg-amber-500 text-neutral-950 font-black text-[8px] px-2 py-0.5 rounded-full absolute top-2 right-2 uppercase">MÁXIMO AHORRO</span>
+                        <div>
+                            <span class="text-[9.5px] text-amber-400 font-bold uppercase block tracking-wider">1 AÑO (365 DÍAS)</span>
+                            <h4 class="text-xs font-black text-white uppercase">MEMBRESÍA ANUAL</h4>
+                            <div class="text-2xl font-black text-amber-300 mt-1"><span id="lbl-prop-plan-365">$80</span> <span class="text-xs text-slate-400">USDT</span></div>
+                            <span id="tab-plan-365-badge-ahorro" class="text-[9px] text-emerald-400 font-bold uppercase block font-sans bg-emerald-950/60 py-0.5 rounded-full border border-emerald-500/30 mt-1">¡Ahorras $40 USD!</span>
+                        </div>
+                        <div id="lbl-prop-plan-365-conv" class="bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800 text-[9.5px] text-slate-400 leading-tight">
+                            <span>288.000 COP</span><br><span class="text-emerald-400 font-bold">87.272,73 Bs</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- PASARELAS DE PAGO -->
+                <div class="pt-3">
+                    <p class="text-center text-[9px] font-black text-slate-400 uppercase tracking-wider mb-2">PAGA EN TU MONEDA PREFERIDA SIN COMPLICACIONES</p>
+                    <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-[10px] font-bold text-slate-300">
+                        <div class="bg-[#0a0a12] border border-neutral-800 py-2.5 rounded-xl"><i class="fa-solid fa-mobile-screen text-purple-400 block text-xs mb-0.5"></i> Pago Móvil</div>
+                        <div class="bg-[#0a0a12] border border-neutral-800 py-2.5 rounded-xl"><i class="fa-solid fa-money-bill-1 text-emerald-400 block text-xs mb-0.5"></i> Dólares Ef.</div>
+                        <div class="bg-[#0a0a12] border border-neutral-800 py-2.5 rounded-xl"><i class="fa-solid fa-flag text-amber-400 block text-xs mb-0.5"></i> Pesos COP</div>
+                        <div class="bg-[#0a0a12] border border-neutral-800 py-2.5 rounded-xl"><i class="fa-solid fa-wallet text-purple-400 block text-xs mb-0.5"></i> Nequi / Bancolombia</div>
+                        <div class="bg-[#0a0a12] border border-neutral-800 py-2.5 rounded-xl"><i class="fa-solid fa-credit-card text-indigo-400 block text-xs mb-0.5"></i> Zinli</div>
+                        <div class="bg-[#0a0a12] border border-neutral-800 py-2.5 rounded-xl"><i class="fa-solid fa-coins text-amber-500 block text-xs mb-0.5"></i> Binance USDT</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BOTÓN DE CIERRE DIRECTO A WHATSAPP -->
+            <section class="p-0.5 rounded-3xl bg-gradient-to-r from-purple-600 via-indigo-600 to-emerald-500 shadow-2xl">
+                <div class="glass-panel rounded-[22px] p-6 sm:p-7 text-center space-y-3.5">
+                    <h2 class="font-black text-sm sm:text-base uppercase text-white tracking-tight">
+                        ¿LISTO PARA PROFESIONALIZAR TU NEGOCIO DE STREAMING?
+                    </h2>
+                    <p class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                        Activa tu sistema hoy mismo. Tus clientes recibirán una atención impecable y tú tendrás el control total de tus vencimientos.
+                    </p>
+                    <a href="https://api.whatsapp.com/send?phone=584247357549&text=Hola%2C%20deseo%20activar%20mi%20suscripci%C3%B3n%20a%20TCL%20Sistema%20Streaming%202026" target="_blank" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black px-7 py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Solicitar Activación por WhatsApp
+                    </a>
+                </div>
+            </section>
+
+            <footer class="border-t border-neutral-800 pt-3 text-center text-[10px] text-slate-500 uppercase tracking-widest space-y-0.5">
+                <p class="font-bold text-slate-400">TCL SISTEMA STREAMING 2026 ES UN SISTEMA DE TUCOCEL C.A.</p>
+                <p>DESARROLLADO POR PUBLIONLINEMK (AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.)</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- VISTA 6: TÉRMINOS Y LICENCIA DIGITAL (LIMPIO, SIN CÉDULA NI SENIAT) -->
+    <div id="vista-contrato-streaming" class="hidden min-h-screen bg-[#07070d] text-white p-3 sm:p-6 w-full overflow-y-auto z-50">
+        <div class="max-w-2xl mx-auto space-y-4 px-2 py-4">
+            <div class="flex justify-between items-center border-b border-neutral-800 pb-3">
+                <span class="text-xs font-mono text-amber-400 font-black uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-contract"></i> ACUERDO DE SERVICIO Y LICENCIA DIGITAL
+                </span>
+                <button onclick="cerrarVistaContratoWeb()" class="bg-neutral-900 hover:bg-neutral-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl border border-neutral-700 text-xs font-black uppercase flex items-center gap-1 transition-all">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Sistema
+                </button>
+            </div>
+
+            <div class="glass-panel p-5 sm:p-7 rounded-3xl border border-neutral-800 space-y-5 text-slate-300 text-xs leading-relaxed">
+                <div class="border-b border-neutral-800 pb-3 text-center space-y-1">
+                    <span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] font-black tracking-widest uppercase px-3 py-1 rounded-full inline-block">
+                        CONTRATO DE ARRENDAMIENTO DE SOFTWARE SAAS 2026
+                    </span>
+                    <h1 class="font-black text-lg sm:text-xl text-white uppercase tracking-tight">TCL SISTEMA STREAMING</h1>
+                    <p class="text-[10px] text-slate-400">Desarrollado y Gestionado por TUCOCEL C.A. & PublionlineMK</p>
+                </div>
+
+                <div class="space-y-3.5 text-justify">
+                    <p class="font-bold text-white">
+                        EL PRESENTE DOCUMENTO CONSTITUYE EL ACUERDO DE ARRENDAMIENTO DE LICENCIA DE SOFTWARE ENTRE TUCOCEL C.A. Y EL REVENDEDOR ASOCIADO BAJO LAS SIGUIENTES CONDICIONES:
+                    </p>
+
+                    <div>
+                        <strong class="text-purple-400 uppercase block mb-0.5">PRIMERA: MODALIDAD DEL SERVICIO (ALQUILER TEMPORAL).</strong>
+                        La presente licencia otorga el derecho de uso temporal, intransferible y no exclusivo del sistema StreamPanel Master durante el período de meses o días contratados. El revendedor reconoce que esta suscripción es un alquiler de servicio tecnológico y no una venta definitiva de los derechos del código fuente.
+                    </div>
+
+                    <div>
+                        <strong class="text-purple-400 uppercase block mb-0.5">SEGUNDA: RESPONSABILIDAD DE CUENTAS Y USUARIOS.</strong>
+                        El revendedor es el único administrador y custodio de los correos, contraseñas, pines y asignaciones de pantalla que ingresa en la plataforma. TUCOCEL C.A. no vende contenidos ni se responsabiliza por las caídas técnicas de plataformas terceras (Netflix, Disney+, Max, etc.), quedando la gestión de garantías sujeta al acuerdo entre el revendedor y sus proveedores.
+                    </div>
+
+                    <div>
+                        <strong class="text-purple-400 uppercase block mb-0.5">TERCERA: CORTE AUTOMÁTICO Y RESPALDO DE DATOS.</strong>
+                        Al finalizar el ciclo contratado, el acceso se suspenderá automáticamente hasta registrar el pago de renovación. Los datos de clientes, historiales y cuentas registradas se mantendrán resguardados y respaldados en la nube sin riesgo de pérdida.
+                    </div>
+
+                    <div>
+                        <strong class="text-purple-400 uppercase block mb-0.5">CUARTA: CANAL OFICIAL Y SOPORTE TÉCNICO.</strong>
+                        Cualquier gestión de renovación, desbloqueo o reactivación se tramita única y exclusivamente a través del canal oficial de soporte central: <b>0424-7357549</b>.
+                    </div>
+                </div>
+
+                <!-- FICHA RÁPIDA SIN CÉDULA -->
+                <form onsubmit="event.preventDefault(); procesarAceptacionTerminos();" class="space-y-3 pt-3 border-t border-neutral-800 text-xs">
+                    <h3 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check"></i> Ficha de Registro del Revendedor
+                    </h3>
+
+                    <div class="space-y-2">
+                        <div>
+                            <label class="text-[9px] text-slate-400 uppercase block mb-0.5">Nombre Comercial del Revendedor *</label>
+                            <input type="text" id="term-nombre" required placeholder="Ej: Streaming Rubio" class="input-clean-dark font-bold uppercase">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[9px] text-slate-400 uppercase block mb-0.5">WhatsApp *</label>
+                                <input type="tel" id="term-tlf" required placeholder="0414..." class="input-clean-dark font-mono">
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-slate-400 uppercase block mb-0.5">Usuario Preferido *</label>
+                                <input type="text" id="term-user" required placeholder="streamingrubio" class="input-clean-dark font-mono uppercase">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-emerald-600 hover:from-purple-500 hover:to-emerald-500 text-white font-black py-3 rounded-xl uppercase tracking-wider text-xs shadow-lg transition-transform active:scale-95">
+                        Aceptar Términos y Solicitar Activación 🚀
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT CENTRAL -->
     <script>
         // ================= SANITIZACIÓN & SEGURIDAD =================
         function escapeHTML(str) {
@@ -584,7 +1004,6 @@
                 .replace(/'/g, '&#039;');
         }
 
-        // Persistencia ofuscada local (Protección en dispositivos compartidos)
         function guardarStorageProtegido(clave, objeto) {
             try {
                 const str = JSON.stringify(objeto);
@@ -620,6 +1039,233 @@
             } catch (e) {
                 return null;
             }
+        }
+
+        // ================= MOTOR CAMBIARIO DE FRONTERA (TÁCHIRA - CÚCUTA) =================
+        const tasasGuardadas = localStorage.getItem('sp_tasas_globales_2026');
+        window.tasasConfig = tasasGuardadas ? JSON.parse(tasasGuardadas) : { cop: 3600, paridadBs: 3.3 };
+
+        window.calcularPesosDesdeUSD = function(dolares) {
+            return (dolares || 0) * (window.tasasConfig.cop || 3600);
+        };
+
+        window.calcularBsDesdeUSD = function(dolares) {
+            const pesos = window.calcularPesosDesdeUSD(dolares);
+            const paridad = (window.tasasConfig.paridadBs || 3.3);
+            return paridad > 0 ? (pesos / paridad) : 0;
+        };
+
+        window.formatearMiles = function(val) {
+            return Math.round(val || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        };
+
+        window.formatBS = function(val) {
+            const num = Number(val) || 0;
+            const partes = num.toFixed(2).split('.');
+            partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            return partes.join(',');
+        };
+
+        function actualizarTasasGlobalesMaster() {
+            const mtCop = document.getElementById('master-tasa-cop');
+            const mtBs = document.getElementById('master-tasa-bs');
+            if (mtCop) window.tasasConfig.cop = parseFloat(mtCop.value) || 3600;
+            if (mtBs) window.tasasConfig.paridadBs = parseFloat(mtBs.value) || 3.3;
+
+            localStorage.setItem('sp_tasas_globales_2026', JSON.stringify(window.tasasConfig));
+            recalcularTarifasSaasModal();
+            renderizarTarifasEnPropuesta();
+        }
+
+        // ================= GESTIÓN DE TARIFAS SAAS =================
+        const tarifasGuardadas = localStorage.getItem('sp_tarifas_saas_2026');
+        window.tarifasConfig = tarifasGuardadas ? JSON.parse(tarifasGuardadas) : { p30: 10, p90: 25, p180: 45, p365: 80 };
+
+        function abrirModalTarifasSaas() {
+            document.getElementById('input-tarifas-30').value = window.tarifasConfig.p30 || 10;
+            document.getElementById('input-tarifas-90').value = window.tarifasConfig.p90 || 25;
+            document.getElementById('input-tarifas-180').value = window.tarifasConfig.p180 || 45;
+            document.getElementById('input-tarifas-365').value = window.tarifasConfig.p365 || 80;
+            recalcularTarifasSaasModal();
+            document.getElementById('modal-tarifas-saas').classList.remove('hidden');
+        }
+
+        function cerrarModalTarifasSaas() {
+            document.getElementById('modal-tarifas-saas').classList.add('hidden');
+        }
+
+        function recalcularTarifasSaasModal() {
+            [30, 90, 180, 365].forEach(dias => {
+                const inp = document.getElementById(`input-tarifas-${dias}`);
+                const usdt = parseFloat(inp ? inp.value : 0) || 0;
+                const cop = window.calcularPesosDesdeUSD(usdt);
+                const bs = window.calcularBsDesdeUSD(usdt);
+
+                const elCop = document.getElementById(`lbl-tarifa-cop-${dias}`);
+                const elBs = document.getElementById(`lbl-tarifa-bs-${dias}`);
+                if (elCop) elCop.innerText = `${window.formatearMiles(cop)} COP`;
+                if (elBs) elBs.innerText = `${window.formatBS(bs)} Bs`;
+            });
+        }
+
+        function guardarTarifasSaas() {
+            const p30 = parseFloat(document.getElementById('input-tarifas-30').value) || 10;
+            const p90 = parseFloat(document.getElementById('input-tarifas-90').value) || 25;
+            const p180 = parseFloat(document.getElementById('input-tarifas-180').value) || 45;
+            const p365 = parseFloat(document.getElementById('input-tarifas-365').value) || 80;
+
+            window.tarifasConfig = { p30, p90, p180, p365 };
+            localStorage.setItem('sp_tarifas_saas_2026', JSON.stringify(window.tarifasConfig));
+            renderizarTarifasEnPropuesta();
+            cerrarModalTarifasSaas();
+            alert("✨ Tarifas SaaS actualizadas y conectadas al Catálogo y Propuesta.");
+        }
+
+        function renderizarTarifasEnPropuesta() {
+            const p30 = window.tarifasConfig.p30 || 10;
+            const p90 = window.tarifasConfig.p90 || 25;
+            const p180 = window.tarifasConfig.p180 || 45;
+            const p365 = window.tarifasConfig.p365 || 80;
+
+            const planes = [
+                { id: 30, val: p30 },
+                { id: 90, val: p90 },
+                { id: 180, val: p180 },
+                { id: 365, val: p365 }
+            ];
+
+            planes.forEach(p => {
+                const lUSDT = document.getElementById(`lbl-prop-plan-${p.id}`);
+                const lConv = document.getElementById(`lbl-prop-plan-${p.id}-conv`);
+                if (lUSDT) lUSDT.innerText = `$${p.val}`;
+                if (lConv) {
+                    const cop = window.calcularPesosDesdeUSD(p.val);
+                    const bs = window.calcularBsDesdeUSD(p.val);
+                    lConv.innerHTML = `<span>${window.formatearMiles(cop)} COP</span><br><span class="text-emerald-400 font-bold">${window.formatBS(bs)} Bs</span>`;
+                }
+            });
+
+            // Insignias dinámicas de ahorro
+            const ahorro90 = Math.max(0, (p30 * 3) - p90);
+            const b90 = document.getElementById('tab-plan-90-badge-ahorro');
+            if (b90) b90.innerText = ahorro90 > 0 ? `¡Ahorras $${ahorro90} USD!` : `Plan 3 Meses`;
+
+            const ahorro180 = Math.max(0, (p30 * 6) - p180);
+            const b180 = document.getElementById('tab-plan-180-badge-ahorro');
+            if (b180) b180.innerText = ahorro180 > 0 ? `¡Ahorras $${ahorro180} USD!` : `Plan 6 Meses`;
+
+            const ahorro365 = Math.max(0, (p30 * 12) - p365);
+            const b365 = document.getElementById('tab-plan-365-badge-ahorro');
+            if (b365) b365.innerText = ahorro365 > 0 ? `¡Ahorras $${ahorro365} USD!` : `Plan Anual`;
+        }
+
+        // ================= HANDLERS BASE DE VENDEDORES (ENCAPSULADA) =================
+        function abrirModalBaseVendedores(tipo = 'ACTIVOS') {
+            viendoBovedaAnulados = (tipo === 'ANULADOS');
+            const lbl = document.getElementById('lbl-titulo-modal-vendedores');
+            if (lbl) {
+                lbl.innerHTML = viendoBovedaAnulados 
+                    ? `<i class="fa-solid fa-box-archive text-red-400"></i> BÓVEDA DE INACTIVOS / ANULADOS`
+                    : `<i class="fa-solid fa-users text-purple-400"></i> BASE DE CLIENTES ACTIVOS`;
+            }
+            document.getElementById('busqueda-modal-vendedor').value = '';
+            renderizarBandejaMaster();
+            document.getElementById('modal-base-vendedores').classList.remove('hidden');
+        }
+
+        function cerrarModalBaseVendedores() {
+            document.getElementById('modal-base-vendedores').classList.add('hidden');
+        }
+
+        // ================= HANDLERS DE PROPUESTA & CONTRATO =================
+        function abrirModalZonaPropuesta() {
+            document.getElementById('modal-zona-propuesta').classList.remove('hidden');
+        }
+
+        function cerrarModalZonaPropuesta() {
+            document.getElementById('modal-zona-propuesta').classList.add('hidden');
+        }
+
+        function accionPropuestaWhatsApp() {
+            cerrarModalZonaPropuesta();
+            const urlBase = obtenerUrlBaseSistema();
+            const linkPropuesta = `${urlBase}#propuesta`;
+
+            const msj = `🎬 *¡HOLA! TE DAMOS LA BIENVENIDA A TCL STREAMING 2026* 🚀\n\n` +
+                        `Lleva tu negocio de reventa de pantallas al siguiente nivel con *StreamPanel Master Pro*, la herramienta líder para revendedores:\n\n` +
+                        `✨ *¿Qué incluye tu plataforma?*\n` +
+                        `• 👥 *Gestión de Perfiles y PIN:* Entrega rápida con correo, clave y pantalla asignada.\n` +
+                        `• 📱 *Fichas por WhatsApp:* Envía claves y cobros a tus clientes con 1 solo toque.\n` +
+                        `• 🛡️ *Bóveda de Proveedores:* Control de a quién le compraste y reporte inmediato de caídas.\n` +
+                        `• 🔔 *Cobranza Automática:* Alertas 4 días antes del corte para renovar a tiempo.\n` +
+                        `• 💵 *Multimoneda en Vivo:* Cotizaciones en USDT, Pesos COP y Bolívares.\n\n` +
+                        `👉 *Revisa la propuesta interactiva y planes aquí:*\n${linkPropuesta}\n\n` +
+                        `🏛️ *TCL SISTEMA STREAMING 2026 ES UN SISTEMA DE TUCOCEL C.A. DESARROLLADO POR PUBLIONLINEMK*\n` +
+                        `📞 Contacto Directo: 0424-7357549`;
+
+            abrirWhatsAppConMensaje('', msj);
+        }
+
+        function accionPropuestaWeb() {
+            cerrarModalZonaPropuesta();
+            mostrarPropuestaDirecta();
+        }
+
+        function accionPropuestaContrato() {
+            cerrarModalZonaPropuesta();
+            mostrarContratoDirecto();
+        }
+
+        function mostrarPropuestaDirecta() {
+            renderizarTarifasEnPropuesta();
+            document.getElementById('vista-login').classList.add('hidden');
+            document.getElementById('vista-master').classList.add('hidden');
+            document.getElementById('vista-vendedor').classList.add('hidden');
+            document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
+            document.getElementById('vista-contrato-streaming').classList.add('hidden');
+            document.getElementById('vista-propuesta-streaming').classList.remove('hidden');
+        }
+
+        function cerrarVistaPropuestaWeb() {
+            document.getElementById('vista-propuesta-streaming').classList.add('hidden');
+            if (sesionActual && sesionActual.tipo === 'MASTER') {
+                iniciarModoMaster();
+            } else {
+                cerrarSesion();
+            }
+        }
+
+        function mostrarContratoDirecto() {
+            document.getElementById('vista-login').classList.add('hidden');
+            document.getElementById('vista-master').classList.add('hidden');
+            document.getElementById('vista-vendedor').classList.add('hidden');
+            document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
+            document.getElementById('vista-propuesta-streaming').classList.add('hidden');
+            document.getElementById('vista-contrato-streaming').classList.remove('hidden');
+        }
+
+        function cerrarVistaContratoWeb() {
+            document.getElementById('vista-contrato-streaming').classList.add('hidden');
+            if (sesionActual && sesionActual.tipo === 'MASTER') {
+                iniciarModoMaster();
+            } else {
+                cerrarSesion();
+            }
+        }
+
+        function procesarAceptacionTerminos() {
+            const nom = document.getElementById('term-nombre').value.trim();
+            const tlf = document.getElementById('term-tlf').value.trim();
+            const usr = document.getElementById('term-user').value.trim();
+
+            const msg = `👋 *SOLICITUD DE ACTIVACIÓN DE LICENCIA — TCL STREAMING 2026*\n\n` +
+                        `He leído y acepto los términos de servicio para operar mi panel:\n\n` +
+                        `👤 *Comercio:* ${nom}\n` +
+                        `📞 *WhatsApp:* ${tlf}\n` +
+                        `🔑 *Usuario Sugerido:* ${usr}\n\n` +
+                        `Quedo atento a la activación y datos de pago. ¡Muchas gracias!`;
+
+            abrirWhatsAppConMensaje(NUMERO_SOPORTE_OFICIAL, msg);
         }
 
         // ================= CONFIGURACIÓN FIREBASE =================
@@ -754,7 +1400,8 @@
             let clean = String(tlf || '').replace(/\D/g, '');
             if (clean.length === 11 && clean.startsWith('0')) clean = '58' + clean.substring(1);
             else if (clean.length === 10) clean = '58' + clean;
-            window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${encodeURIComponent(texto)}`, '_blank');
+            const url = clean ? `https://api.whatsapp.com/send?phone=${clean}&text=${encodeURIComponent(texto)}` : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
         }
 
         function reiniciarTemporizadorInactividad() {
@@ -785,14 +1432,13 @@
             }, 2500);
         }
 
-        // ================= AUTENTICACIÓN DIRECTA & ROBUSTA =================
+        // ================= AUTENTICACIÓN DIRECTA =================
         async function ejecutarLogin(e) {
             e.preventDefault();
             const u = document.getElementById('login-user').value.trim().toLowerCase();
             const p = document.getElementById('login-pass').value.trim();
             const recordar = document.getElementById('chk-recordar-sesion').checked;
 
-            // Acceso Master Directo sin fallos de entorno
             if (u === "tucocel" && p === "Razu2020.") {
                 mostrarSplashScreen(
                     "BIENVENIDO A TCL SISTEMA STREAMING 2026",
@@ -876,6 +1522,8 @@
             document.getElementById('vista-master').classList.add('hidden');
             document.getElementById('vista-vendedor').classList.add('hidden');
             document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
+            document.getElementById('vista-propuesta-streaming').classList.add('hidden');
+            document.getElementById('vista-contrato-streaming').classList.add('hidden');
             document.getElementById('vista-login').classList.remove('hidden');
         }
 
@@ -912,9 +1560,16 @@
             document.getElementById('vista-login').classList.add('hidden');
             document.getElementById('vista-vendedor').classList.add('hidden');
             document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
+            document.getElementById('vista-propuesta-streaming').classList.add('hidden');
+            document.getElementById('vista-contrato-streaming').classList.add('hidden');
             document.getElementById('banner-impersonacion').classList.add('hidden');
             document.getElementById('capsula-flotante-salir').classList.add('hidden');
             document.getElementById('vista-master').classList.remove('hidden');
+
+            const mtCop = document.getElementById('master-tasa-cop');
+            const mtBs = document.getElementById('master-tasa-bs');
+            if (mtCop) mtCop.value = window.tasasConfig.cop || 3600;
+            if (mtBs) mtBs.value = window.tasasConfig.paridadBs || 3.3;
 
             if (cloudActiva) {
                 try {
@@ -947,42 +1602,36 @@
             }
         }
 
-        function alternarBovedaAnuladosMaster() {
-            viendoBovedaAnulados = !viendoBovedaAnulados;
-            const btn = document.getElementById('btn-toggle-boveda');
-            const lbl = document.getElementById('master-lbl-seccion-actual');
-
-            if (viendoBovedaAnulados) {
-                btn.className = "bg-amber-500 text-neutral-950 font-black text-[8.5px] md:text-xs px-3 py-1.5 rounded-xl uppercase tracking-wider";
-                btn.innerText = "🟢 Ver Vendedores Activos";
-                lbl.innerText = "Bóveda de Anulados / Espera";
-            } else {
-                btn.className = "bg-neutral-900 border border-neutral-800 hover:border-amber-500 text-amber-400 text-[8.5px] md:text-xs font-black px-3 py-1.5 rounded-xl uppercase tracking-wider";
-                btn.innerText = "📂 Ver Bóveda Anulados";
-                lbl.innerText = "Vendedores Activos";
-            }
-            renderizarBandejaMaster();
-        }
-
         function renderizarBandejaMaster() {
             const box = document.getElementById('contenedor-vendedores-master');
-            const busq = document.getElementById('master-in-buscar').value.trim().toUpperCase();
+            const busqInp = document.getElementById('busqueda-modal-vendedor');
+            const busq = busqInp ? busqInp.value.trim().toUpperCase() : '';
             box.innerHTML = '';
 
-            let cTotal = 0, cCobrar = 0, cPausados = 0;
+            let cTotal = 0, cCobrar = 0, cPausados = 0, cAnulados = 0;
 
             dbMasterVendedores.forEach(v => {
                 if (v.estado === 'ELIMINADO_DEF') return;
-                if (v.estado !== 'ANULADO') cTotal++;
                 const d = calcularDiasRestantes(v.fecha, v.meses, v.diasPrueba || 0);
                 v.diasRestantes = d;
-                if ((d <= 0 || v.estado === 'PAUSADO') && v.estado !== 'ANULADO') cPausados++;
-                else if (d <= 5 && v.estado !== 'ANULADO') cCobrar++;
+
+                if (v.estado === 'ANULADO') {
+                    cAnulados++;
+                } else {
+                    cTotal++;
+                    if (d <= 0 || v.estado === 'PAUSADO') cPausados++;
+                    else if (d <= 5) cCobrar++;
+                }
             });
 
             document.getElementById('master-met-total').innerText = cTotal;
             document.getElementById('master-met-cobrar').innerText = cCobrar;
             document.getElementById('master-met-pausados').innerText = cPausados;
+
+            const bAct = document.getElementById('cnt-badge-activos');
+            const bIna = document.getElementById('cnt-badge-inactivos');
+            if (bAct) bAct.innerText = cTotal;
+            if (bIna) bIna.innerText = cAnulados;
 
             let lista = dbMasterVendedores.filter(v => {
                 if (v.estado === 'ELIMINADO_DEF') return false;
@@ -999,7 +1648,7 @@
             }
 
             if (lista.length === 0) {
-                box.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs font-bold md:col-span-3">${viendoBovedaAnulados ? 'No hay vendedores en la Bóveda de Anulados.' : 'No hay vendedores activos registrados.'}</div>`;
+                box.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs font-bold md:col-span-2">${viendoBovedaAnulados ? 'No hay vendedores en la Bóveda de Inactivos.' : 'No hay vendedores registrados en este estado.'}</div>`;
                 return;
             }
 
@@ -1274,7 +1923,7 @@
         async function anularVendedorHaciaBoveda(id) {
             const v = dbMasterVendedores.find(x => x.id === id);
             if (!v) return;
-            if (!confirm(`¿Mover a [${v.nombre}] a la Bóveda de Anulados? (Se suspenderá su acceso inmediatamente pero sus datos quedarán seguros)`)) return;
+            if (!confirm(`¿Mover a [${v.nombre}] a la Bóveda de Inactivos? (Se suspenderá su acceso inmediatamente pero sus datos quedarán seguros)`)) return;
             v.estado = 'ANULADO';
             await guardarMasterVendedores();
 
@@ -1325,6 +1974,7 @@
 
             document.getElementById('lbl-impersonado-nombre').innerText = v.nombre;
             document.getElementById('banner-impersonacion').classList.remove('hidden');
+            cerrarModalBaseVendedores();
             document.getElementById('vista-master').classList.add('hidden');
             iniciarModoVendedor(vendedorId);
         }
@@ -1341,6 +1991,8 @@
         function iniciarModoVendedor(vendedorId) {
             document.getElementById('vista-login').classList.add('hidden');
             document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
+            document.getElementById('vista-propuesta-streaming').classList.add('hidden');
+            document.getElementById('vista-contrato-streaming').classList.add('hidden');
             document.getElementById('vista-vendedor').classList.remove('hidden');
             document.getElementById('capsula-flotante-salir').classList.remove('hidden');
 
@@ -2062,6 +2714,16 @@
         // ================= DETECCIÓN ESTRICTA AL CARGAR =================
         window.onload = async () => {
             const hashSlug = window.location.hash ? window.location.hash.replace('#', '').trim().toLowerCase() : '';
+
+            // 1. Detección directa de propuesta o contrato en URL
+            if (hashSlug === 'propuesta' || window.location.search.includes('propuesta=true')) {
+                mostrarPropuestaDirecta();
+                return;
+            }
+            if (hashSlug === 'contrato' || window.location.search.includes('contrato=true')) {
+                mostrarContratoDirecto();
+                return;
+            }
 
             if (cloudActiva) {
                 try {
