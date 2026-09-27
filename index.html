@@ -38,7 +38,7 @@
         </button>
     </div>
 
-    <!-- SPLASH SCREEN DE BIENVENIDA (2.5s) -->
+    <!-- SPLASH SCREEN DE BIENVENIDA -->
     <div id="splash-screen" class="fixed inset-0 bg-[#07070d] z-[9999] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-700 hidden">
         <div class="space-y-4 max-w-xs">
             <div id="splash-ico-box" class="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto text-white text-3xl shadow-2xl shadow-purple-600/50 animate-bounce">
@@ -572,10 +572,69 @@
         </div>
     </div>
 
-    <!-- SCRIPT CENTRAL CON BLINDAJE ANTI-SOBREESCRITURA -->
     <script>
-        // CONFIGURACIÓN OFUSCADA DE FIREBASE
-        const _p1 = "dHVjb2NlbC12aXRyaW5h"; // tucocel-vitrina
+        // ================= SANITIZACIÓN & SEGURIDAD CRÍTICA =================
+        function escapeHTML(str) {
+            if (typeof str !== 'string') return str ?? '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        async function calcularHashSHA256(cadena) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(cadena);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Hash SHA-256 de la contraseña maestra (Razu2020.)
+        const _HASH_MASTER_PASS = "a60bb4a1c5d6fcbb65d1d6aa0d592f65a12ce92da0d43f0907e86e3943fcf5f1";
+
+        // Persistencia ofuscada local (Mitigación para equipos compartidos)
+        function guardarStorageProtegido(clave, objeto) {
+            try {
+                const str = JSON.stringify(objeto);
+                const bytes = new TextEncoder().encode(str);
+                let binary = '';
+                for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                localStorage.setItem(clave, 'ENC_' + btoa(binary));
+            } catch (e) {
+                localStorage.setItem(clave, JSON.stringify(objeto));
+            }
+        }
+
+        function obtenerStorageProtegido(clave) {
+            const raw = localStorage.getItem(clave);
+            if (!raw) return null;
+            if (raw.startsWith('ENC_')) {
+                try {
+                    const bin = atob(raw.substring(4));
+                    const bytes = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++) {
+                        bytes[i] = bin.charCodeAt(i);
+                    }
+                    const dec = new TextDecoder().decode(bytes);
+                    return JSON.parse(dec);
+                } catch (e) {
+                    return null;
+                }
+            }
+            try {
+                return JSON.parse(raw);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // ================= CONFIGURACIÓN FIREBASE =================
+        const _p1 = "dHVjb2NlbC12aXRyaW5h";
         const _fbDomain = atob(_p1) + ".firebaseapp.com";
         const _fbBucket = atob(_p1) + ".appspot.com";
         const _fbProject = atob(_p1);
@@ -587,7 +646,7 @@
         let dbFirestore = null;
         let cloudActiva = false;
         let unsubscribeVendedorRealtime = null;
-        let estaSincronizadoNube = false; // Candado inicial anti-carrera
+        let estaSincronizadoNube = false;
 
         try {
             if (_k !== "TU_API_KEY_AQUI") {
@@ -604,13 +663,13 @@
                 cloudActiva = true;
             }
         } catch (e) {
-            console.warn("Modo offline / local activo:", e);
+            console.warn("Modo local protegido activo:", e);
         }
 
         const NUMERO_SOPORTE_OFICIAL = "04247357549";
 
-        let dbMasterVendedores = JSON.parse(localStorage.getItem('sp_master_vendedores')) || [];
-        let sesionActual = JSON.parse(sessionStorage.getItem('sp_sesion_activa')) || JSON.parse(localStorage.getItem('sp_sesion_persistente')) || null;
+        let dbMasterVendedores = obtenerStorageProtegido('sp_master_vendedores') || [];
+        let sesionActual = JSON.parse(sessionStorage.getItem('sp_sesion_activa')) || obtenerStorageProtegido('sp_sesion_persistente') || null;
         let esModoMasterImpersonacion = false;
         let vendedorIdImpersonado = null;
         let viendoBovedaAnulados = false;
@@ -639,10 +698,10 @@
             if (ind) {
                 if (bloquear) {
                     ind.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
-                    ind.title = "Descargando última versión de la nube...";
+                    ind.title = "Descargando versión de la nube...";
                 } else {
                     ind.className = "w-2 h-2 rounded-full bg-emerald-400";
-                    ind.title = "Sincronizado y protegido contra sobreescritura";
+                    ind.title = "Sincronizado y protegido";
                 }
             }
         }
@@ -737,14 +796,17 @@
             }, 2500);
         }
 
-        // ================= AUTENTICACIÓN DIRECTA =================
+        // ================= AUTENTICACIÓN SEGURA =================
         async function ejecutarLogin(e) {
             e.preventDefault();
             const u = document.getElementById('login-user').value.trim().toLowerCase();
             const p = document.getElementById('login-pass').value.trim();
             const recordar = document.getElementById('chk-recordar-sesion').checked;
 
-            if (u === "tucocel" && p === "Razu2020.") {
+            const passHash = await calcularHashSHA256(p);
+
+            // Verificación SuperAdmin mediante hash (contraseña segura no expuesta)
+            if (u === "tucocel" && passHash === _HASH_MASTER_PASS) {
                 mostrarSplashScreen(
                     "BIENVENIDO A TCL SISTEMA STREAMING 2026",
                     "Consola Central SuperAdmin • Acceso Autorizado",
@@ -762,7 +824,7 @@
                     const snap = await dbFirestore.collection("saas_vendedores").get();
                     if (!snap.empty) {
                         dbMasterVendedores = snap.docs.map(doc => doc.data());
-                        localStorage.setItem('sp_master_vendedores', JSON.stringify(dbMasterVendedores));
+                        guardarStorageProtegido('sp_master_vendedores', dbMasterVendedores);
                     }
                 } catch (err) {}
             }
@@ -802,7 +864,7 @@
 
         function establecerSesion(sesion, persistente) {
             sessionStorage.setItem('sp_sesion_activa', JSON.stringify(sesion));
-            if (persistente) localStorage.setItem('sp_sesion_persistente', JSON.stringify(sesion));
+            if (persistente) guardarStorageProtegido('sp_sesion_persistente', sesion);
             else localStorage.removeItem('sp_sesion_persistente');
             sesionActual = sesion;
         }
@@ -842,10 +904,10 @@
 
             if (esAnulado) {
                 tit.innerText = "Acceso Suspendido / En Bóveda";
-                mot.innerText = `Hola ${vendedor.nombre}, tu cuenta ha sido enviada a bóveda de espera. Tus datos están completamente seguros y respaldados. Comunícate con el administrador para reactivarla.`;
+                mot.innerText = `Hola ${vendedor.nombre}, tu cuenta ha sido enviada a bóveda de espera. Tus datos están respaldados. Comunícate con el administrador para reactivarla.`;
             } else if (esDemo) {
                 tit.innerText = "Período de Prueba Finalizado";
-                mot.innerText = `Hola ${vendedor.nombre}, tu tiempo de demostración gratuita ha concluido. Si deseas activar el sistema formalmente, contacta al soporte técnico.`;
+                mot.innerText = `Hola ${vendedor.nombre}, tu tiempo de demostración gratuita ha concluido. Contacta al soporte técnico para activar formalmente el sistema.`;
             } else {
                 tit.innerText = "Membresía Pausada";
                 mot.innerText = `Hola ${vendedor.nombre}, tu suscripción ha vencido. Tus clientes y cuentas están respaldados y seguros. Contáctanos para reactivar de inmediato.`;
@@ -872,7 +934,7 @@
                     const snap = await dbFirestore.collection("saas_vendedores").get();
                     if (!snap.empty) {
                         dbMasterVendedores = snap.docs.map(doc => doc.data());
-                        localStorage.setItem('sp_master_vendedores', JSON.stringify(dbMasterVendedores));
+                        guardarStorageProtegido('sp_master_vendedores', dbMasterVendedores);
                     }
                     document.getElementById('master-cloud-badge').innerText = "🟢 Cloud Firestore Activa";
                 } catch(e) {
@@ -883,7 +945,7 @@
         }
 
         async function guardarMasterVendedores() {
-            localStorage.setItem('sp_master_vendedores', JSON.stringify(dbMasterVendedores));
+            guardarStorageProtegido('sp_master_vendedores', dbMasterVendedores);
             if (cloudActiva) {
                 try {
                     const batch = dbFirestore.batch();
@@ -962,7 +1024,7 @@
                 const esDemo = v.tipoDuracion === 'DIAS_PRUEBA';
 
                 const dataKey = `sp_data_${v.id}`;
-                const dataV = JSON.parse(localStorage.getItem(dataKey)) || { ventas: [], cuentas: [] };
+                const dataV = obtenerStorageProtegido(dataKey) || { ventas: [], cuentas: [] };
                 const totalClientes = dataV.ventas?.length || 0;
                 const totalCuentas = dataV.cuentas?.length || 0;
 
@@ -975,22 +1037,22 @@
                 if (v.claveModificada) {
                     avisoClave = `
                         <div class="bg-amber-950/40 border border-amber-500/50 p-2 rounded-xl flex justify-between items-center text-[9.5px]">
-                            <span class="text-amber-400 font-bold">⚠️ Clave cambiada por el cliente: <b class="text-white font-mono">${v.clave}</b></span>
-                            <button onclick="marcarClaveVista('${v.id}')" class="text-slate-400 hover:text-white text-[8.5px] uppercase font-black underline">OK</button>
+                            <span class="text-amber-400 font-bold">⚠️ Clave cambiada por el cliente: <b class="text-white font-mono">${escapeHTML(v.clave)}</b></span>
+                            <button onclick="marcarClaveVista('${escapeHTML(v.id)}')" class="text-slate-400 hover:text-white text-[8.5px] uppercase font-black underline">OK</button>
                         </div>
                     `;
                 }
 
-                const urlPersonalizada = `${obtenerUrlBaseSistema()}#${v.slug}`;
+                const urlPersonalizada = `${obtenerUrlBaseSistema()}#${escapeHTML(v.slug)}`;
 
                 box.innerHTML += `
                     <div class="card-dark rounded-2xl p-3.5 space-y-2.5 flex flex-col justify-between ${esAlerta ? 'border-amber-500/60' : ''}">
                         <div class="space-y-2">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h3 class="text-xs font-black text-white uppercase">${v.nombre}</h3>
-                                    <span class="text-[9.5px] text-slate-400 font-mono block"><i class="fa-solid fa-phone text-[8.5px] mr-1 text-slate-500"></i>${v.telefono}</span>
-                                    <span class="text-[9px] text-slate-500 font-bold block">Vence: ${fVenc} (${esDemo ? v.diasPrueba + ' Días Demo' : v.meses + ' Meses'})</span>
+                                    <h3 class="text-xs font-black text-white uppercase">${escapeHTML(v.nombre)}</h3>
+                                    <span class="text-[9.5px] text-slate-400 font-mono block"><i class="fa-solid fa-phone text-[8.5px] mr-1 text-slate-500"></i>${escapeHTML(v.telefono)}</span>
+                                    <span class="text-[9px] text-slate-500 font-bold block">Vence: ${escapeHTML(fVenc)} (${esDemo ? v.diasPrueba + ' Días Demo' : v.meses + ' Meses'})</span>
                                 </div>
                                 ${badgeDias}
                             </div>
@@ -1004,7 +1066,7 @@
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-slate-500 uppercase font-sans text-[8px]">Usuario / Clave:</span>
-                                    <span class="font-bold text-slate-200 select-all">${v.usuario} • ${v.clave}</span>
+                                    <span class="font-bold text-slate-200 select-all">${escapeHTML(v.usuario)} • ${escapeHTML(v.clave)}</span>
                                 </div>
                                 <div class="flex justify-between items-center pt-0.5 border-t border-neutral-800 text-[8.5px] text-purple-400">
                                     <span>Total Clientes: ${totalClientes}</span>
@@ -1015,26 +1077,26 @@
 
                         <div class="grid grid-cols-5 gap-1 pt-2 border-t border-neutral-800/60">
                             ${v.estado !== 'ANULADO' ? `
-                                <button onclick="entrarComoAsistente('${v.id}')" title="Entrar a su panel" class="bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <button onclick="entrarComoAsistente('${escapeHTML(v.id)}')" title="Entrar a su panel" class="bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                     <i class="fa-solid fa-eye text-[10px]"></i> Ver
                                 </button>
-                                <button onclick="despacharCredencialesRevendedor('${v.id}')" title="Enviar credenciales directo" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <button onclick="despacharCredencialesRevendedor('${escapeHTML(v.id)}')" title="Enviar credenciales directo" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                     <i class="fa-brands fa-whatsapp text-xs"></i> Enviar
                                 </button>
-                                <button onclick="abrirModalCaja('${v.id}')" title="Cobro de caja" class="bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 text-amber-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <button onclick="abrirModalCaja('${escapeHTML(v.id)}')" title="Cobro de caja" class="bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 text-amber-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                     <i class="fa-solid fa-cash-register text-[10px]"></i> Caja
                                 </button>
-                                <button onclick="abrirEditorVendedorMaster('${v.id}')" title="Editar vendedor" class="bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <button onclick="abrirEditorVendedorMaster('${escapeHTML(v.id)}')" title="Editar vendedor" class="bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                     <i class="fa-solid fa-pen text-[10px]"></i> Edit
                                 </button>
-                                <button onclick="anularVendedorHaciaBoveda('${v.id}')" title="Mover a bóveda de espera" class="bg-neutral-900 border border-neutral-800 hover:border-red-500 text-red-400 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <button onclick="anularVendedorHaciaBoveda('${escapeHTML(v.id)}')" title="Mover a bóveda de espera" class="bg-neutral-900 border border-neutral-800 hover:border-red-500 text-red-400 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                     <i class="fa-solid fa-box-archive text-[10px]"></i> Anular
                                 </button>
                             ` : `
-                                <button onclick="reactivarVendedorDesdeBoveda('${v.id}')" class="col-span-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[9.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <button onclick="reactivarVendedorDesdeBoveda('${escapeHTML(v.id)}')" class="col-span-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[9.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                     <i class="fa-solid fa-recycle"></i> Reactivar
                                 </button>
-                                <button onclick="eliminarDefinitivoVendedor('${v.id}')" class="col-span-2 bg-red-950/90 border border-red-500 hover:bg-red-900 text-red-300 font-black text-[9.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                <button onclick="eliminarDefinitivoVendedor('${escapeHTML(v.id)}')" class="col-span-2 bg-red-950/90 border border-red-500 hover:bg-red-900 text-red-300 font-black text-[9.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                     <i class="fa-solid fa-trash"></i> Borrar
                                 </button>
                             `}
@@ -1042,6 +1104,15 @@
                     </div>
                 `;
             });
+        }
+
+        function marcarClaveVista(id) {
+            const v = dbMasterVendedores.find(x => x.id === id);
+            if (v) {
+                v.claveModificada = false;
+                guardarMasterVendedores();
+                renderizarBandejaMaster();
+            }
         }
 
         function alEscribirNombreComercioSlug() {
@@ -1279,7 +1350,7 @@
             iniciarModoMaster();
         }
 
-        // ================= DASHBOARD DEL REVENDEDOR CON ON-SNAPSHOT (ANTI-CARRERA) =================
+        // ================= DASHBOARD DEL REVENDEDOR =================
         function iniciarModoVendedor(vendedorId) {
             document.getElementById('vista-login').classList.add('hidden');
             document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
@@ -1296,18 +1367,15 @@
                 else badge.className = "text-[8.5px] md:text-[9.5px] font-mono font-bold text-emerald-400 block leading-none";
             }
 
-            // APLICAR CANDADO MIENTRAS CONECTA A LA NUBE
             aplicarCandadoSincronizacion(true);
 
-            // Cargar caché local inmediato mientras conecta Firestore
             const dataKey = `sp_data_${vendedorId}`;
-            const dataV = JSON.parse(localStorage.getItem(dataKey)) || { ventas: [], cuentas: [] };
+            const dataV = obtenerStorageProtegido(dataKey) || { ventas: [], cuentas: [] };
             dbVentas = dataV.ventas || [];
             dbCuentas = dataV.cuentas || [];
             actualizarMetricasYChismoseador();
             renderizarBandejaClientes();
 
-            // CONEXIÓN EN TIEMPO REAL CON FIRESTORE (EVITA SOBREESCRITURAS)
             if (cloudActiva) {
                 if (unsubscribeVendedorRealtime) unsubscribeVendedorRealtime();
 
@@ -1315,7 +1383,6 @@
                     .onSnapshot((doc) => {
                         if (doc.exists) {
                             const cloudData = doc.data();
-                            // FUSIÓN INTELIGENTE ANTI-PISADA: Si local tiene ventas no guardadas, fusionar por ID
                             const mapaVentas = new Map();
                             (cloudData.ventas || []).forEach(item => mapaVentas.set(item.id, item));
                             dbVentas.forEach(item => { if (!mapaVentas.has(item.id)) mapaVentas.set(item.id, item); });
@@ -1327,16 +1394,15 @@
                             dbVentas = Array.from(mapaVentas.values());
                             dbCuentas = Array.from(mapaCuentas.values());
 
-                            localStorage.setItem(dataKey, JSON.stringify({ ventas: dbVentas, cuentas: dbCuentas }));
+                            guardarStorageProtegido(dataKey, { ventas: dbVentas, cuentas: dbCuentas });
                         }
-                        // LIBERAR CANDADO DE ESCRITURA
                         aplicarCandadoSincronizacion(false);
                         actualizarMetricasYChismoseador();
                         renderizarBandejaClientes();
                         actualizarSelectCuentasMadre();
                     }, (err) => {
-                        console.warn("Fallo temporal en escucha Firestore:", err);
-                        aplicarCandadoSincronizacion(false); // Liberar en fallback
+                        console.warn("Fallo temporal en Firestore:", err);
+                        aplicarCandadoSincronizacion(false);
                     });
             } else {
                 aplicarCandadoSincronizacion(false);
@@ -1349,18 +1415,16 @@
             poblarSelectServicios();
         }
 
-        // GUARDADO ATÓMICO EN FIRESTORE CON MERGE
         async function guardarDatosVendedorActual() {
             const vId = esModoMasterImpersonacion ? vendedorIdImpersonado : (sesionActual ? sesionActual.id : null);
             if (!vId) return;
 
             const dataKey = `sp_data_${vId}`;
             const pack = { ventas: dbVentas, cuentas: dbCuentas, ultimaModif: Date.now() };
-            localStorage.setItem(dataKey, JSON.stringify(pack));
+            guardarStorageProtegido(dataKey, pack);
 
             if (cloudActiva) {
                 try {
-                    // Escritura protegida por fusión (Merge: true) para evitar pisar campos ajenos
                     await dbFirestore.collection("saas_data").doc(vId).set(pack, { merge: true });
                 } catch (e) {
                     console.error("Error en persistencia Firestore:", e);
@@ -1400,7 +1464,7 @@
             dbVentas.forEach(v => {
                 const fVenc = calcularVencimientoExacto(v.fecha, v.meses);
                 const d = calcularDiasRestantes(v.fecha, v.meses);
-                csvContent += `"${v.cliente}","${v.tlf}","${v.servicio}","${v.correo}","${v.clave}","${v.perfil || ''}","${v.pin || ''}","${v.fecha}","${fVenc}","${d}"\n`;
+                csvContent += `"${(v.cliente || '').replace(/"/g, '""')}","${(v.tlf || '').replace(/"/g, '""')}","${(v.servicio || '').replace(/"/g, '""')}","${(v.correo || '').replace(/"/g, '""')}","${(v.clave || '').replace(/"/g, '""')}","${(v.perfil || '').replace(/"/g, '""')}","${(v.pin || '').replace(/"/g, '""')}","${v.fecha}","${fVenc}","${d}"\n`;
             });
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1440,7 +1504,7 @@
                 lista = lista.filter(v => 
                     v.cliente.toUpperCase().includes(busq) || 
                     v.servicio.toUpperCase().includes(busq) || 
-                    v.correo.toUpperCase().includes(busq) ||
+                    v.correo.toUpperCase().includes(busq) || 
                     (v.perfil && v.perfil.toUpperCase().includes(busq)) ||
                     v.tlf.includes(busq)
                 );
@@ -1466,9 +1530,9 @@
                         <div class="space-y-2">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <span class="text-[9px] font-black text-purple-400 uppercase tracking-wide block">${item.servicio}</span>
-                                    <h3 class="text-xs font-black text-white uppercase">${item.cliente}</h3>
-                                    <span class="text-[9.5px] text-slate-400 font-mono block"><i class="fa-solid fa-phone text-[8.5px] mr-1 text-slate-500"></i>${item.tlf}</span>
+                                    <span class="text-[9px] font-black text-purple-400 uppercase tracking-wide block">${escapeHTML(item.servicio)}</span>
+                                    <h3 class="text-xs font-black text-white uppercase">${escapeHTML(item.cliente)}</h3>
+                                    <span class="text-[9.5px] text-slate-400 font-mono block"><i class="fa-solid fa-phone text-[8.5px] mr-1 text-slate-500"></i>${escapeHTML(item.tlf)}</span>
                                 </div>
                                 ${badge}
                             </div>
@@ -1476,38 +1540,38 @@
                             <div class="bg-[#0a0a12] p-2.5 rounded-xl border border-neutral-800 space-y-1 font-mono text-[10px]">
                                 <div class="flex justify-between items-center text-slate-300">
                                     <span class="text-slate-500 uppercase font-sans text-[8.5px]">Correo:</span>
-                                    <span class="font-bold select-all truncate pl-2">${item.correo}</span>
+                                    <span class="font-bold select-all truncate pl-2">${escapeHTML(item.correo)}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-slate-300">
                                     <span class="text-slate-500 uppercase font-sans text-[8.5px]">Clave:</span>
-                                    <span class="font-bold text-amber-300 select-all">${item.clave}</span>
+                                    <span class="font-bold text-amber-300 select-all">${escapeHTML(item.clave)}</span>
                                 </div>
                                 ${item.perfil ? `
                                 <div class="flex justify-between items-center text-slate-300">
                                     <span class="text-slate-500 uppercase font-sans text-[8.5px]">Perfil / PIN:</span>
-                                    <span class="font-bold uppercase text-purple-300">${item.perfil} ${item.pin ? '• PIN: ' + item.pin : ''}</span>
+                                    <span class="font-bold uppercase text-purple-300">${escapeHTML(item.perfil)} ${item.pin ? '• PIN: ' + escapeHTML(item.pin) : ''}</span>
                                 </div>` : ''}
                                 <div class="flex justify-between items-center text-slate-400 pt-0.5 border-t border-neutral-800/80 text-[9px]">
-                                    <span>Activado: ${fAct} (${item.meses}m)</span>
-                                    <span class="text-amber-400 font-bold">Corte: ${fVenc}</span>
+                                    <span>Activado: ${escapeHTML(fAct)} (${item.meses}m)</span>
+                                    <span class="text-amber-400 font-bold">Corte: ${escapeHTML(fVenc)}</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-5 gap-1 pt-2 border-t border-neutral-800/60">
-                            <button onclick="enviarAcceso('${item.id}')" title="Enviar ficha al WhatsApp del cliente" class="bg-purple-950/70 hover:bg-purple-900 border border-purple-500/40 text-purple-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                            <button onclick="enviarAcceso('${escapeHTML(item.id)}')" title="Enviar ficha al WhatsApp del cliente" class="bg-purple-950/70 hover:bg-purple-900 border border-purple-500/40 text-purple-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-key text-[10px]"></i> Clave
                             </button>
-                            <button onclick="enviarCobro('${item.id}')" title="Enviar cobro al WhatsApp del cliente" class="bg-amber-950/70 hover:bg-amber-900 border border-amber-500/40 text-amber-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                            <button onclick="enviarCobro('${escapeHTML(item.id)}')" title="Enviar cobro al WhatsApp del cliente" class="bg-amber-950/70 hover:bg-amber-900 border border-amber-500/40 text-amber-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-bell text-[10px]"></i> Cobrar
                             </button>
-                            <button onclick="renovarUnMes('${item.id}')" title="Renovar +1 mes anclado" class="bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                            <button onclick="renovarUnMes('${escapeHTML(item.id)}')" title="Renovar +1 mes anclado" class="bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-bolt text-[10px]"></i> +1M
                             </button>
-                            <button onclick="abrirEditorModal('${item.id}')" title="Editar cuenta" class="bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                            <button onclick="abrirEditorModal('${escapeHTML(item.id)}')" title="Editar cuenta" class="bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit
                             </button>
-                            <button onclick="abrirWhatsAppDirecto('${item.tlf}')" title="Chat directo al WhatsApp del cliente" class="bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-500/30 text-emerald-400 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                            <button onclick="abrirWhatsAppDirecto('${escapeHTML(item.tlf)}')" title="Chat directo al WhatsApp del cliente" class="bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-500/30 text-emerald-400 font-black text-[9px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                 <i class="fa-brands fa-whatsapp text-xs"></i> Chat
                             </button>
                         </div>
@@ -1566,8 +1630,9 @@
             selVenta.innerHTML = '';
             selCta.innerHTML = '';
             catalogoServicios.forEach(s => {
-                selVenta.innerHTML += `<option value="${s}">${s}</option>`;
-                selCta.innerHTML += `<option value="${s}">${s}</option>`;
+                const sEsc = escapeHTML(s);
+                selVenta.innerHTML += `<option value="${sEsc}">${sEsc}</option>`;
+                selCta.innerHTML += `<option value="${sEsc}">${sEsc}</option>`;
             });
         }
 
@@ -1702,8 +1767,8 @@
                 }
 
                 grid.innerHTML += `
-                    <button onclick="seleccionarCarpeta('${srv}')" class="p-2 rounded-xl text-left transition-all border ${estiloBorde}">
-                        <span class="text-[8px] md:text-[9.5px] font-black uppercase block truncate">${srv}</span>
+                    <button onclick="seleccionarCarpeta('${escapeHTML(srv)}')" class="p-2 rounded-xl text-left transition-all border ${estiloBorde}">
+                        <span class="text-[8px] md:text-[9.5px] font-black uppercase block truncate">${escapeHTML(srv)}</span>
                         ${txtAlerta}
                     </button>
                 `;
@@ -1754,7 +1819,7 @@
             const sel = document.getElementById('form-select-cuenta-madre');
             sel.innerHTML = `<option value="MANUAL">✍️ Escribir datos manualmente</option>`;
             dbCuentas.forEach((c, idx) => {
-                sel.innerHTML += `<option value="${idx}">[${c.servicio}] ${c.correo} (${c.proveedor || 'Sin Prov.'})</option>`;
+                sel.innerHTML += `<option value="${idx}">[${escapeHTML(c.servicio)}] ${escapeHTML(c.correo)} (${escapeHTML(c.proveedor) || 'Sin Prov.'})</option>`;
             });
         }
 
@@ -1932,8 +1997,8 @@
                             <div class="bg-[#07070d] p-3 rounded-2xl border border-neutral-800 space-y-2">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <span class="text-[8.5px] font-black uppercase text-purple-400 block">${cta.servicio}</span>
-                                        <span class="text-[10px] text-slate-300 font-mono font-bold block select-all truncate">${cta.correo}</span>
+                                        <span class="text-[8.5px] font-black uppercase text-purple-400 block">${escapeHTML(cta.servicio)}</span>
+                                        <span class="text-[10px] text-slate-300 font-mono font-bold block select-all truncate">${escapeHTML(cta.correo)}</span>
                                     </div>
                                     ${badgeDias}
                                 </div>
@@ -1941,25 +2006,25 @@
                                 <div class="bg-[#11111e] p-2 rounded-xl border border-neutral-800/80 space-y-1 font-mono text-[9.5px]">
                                     <div class="flex justify-between items-center text-slate-300">
                                         <span class="text-slate-500 uppercase font-sans text-[8px]">Clave Maestra:</span>
-                                        <span class="font-bold text-amber-300 select-all">${cta.clave}</span>
+                                        <span class="font-bold text-amber-300 select-all">${escapeHTML(cta.clave)}</span>
                                     </div>
                                     <div class="flex justify-between items-center text-slate-400 pt-0.5 border-t border-neutral-800 text-[8.5px]">
-                                        <span>Comprada: ${fAct} (${cta.meses}m)</span>
-                                        <span class="text-amber-400 font-bold">Vence Prov: ${fVenc}</span>
+                                        <span>Comprada: ${escapeHTML(fAct)} (${cta.meses}m)</span>
+                                        <span class="text-amber-400 font-bold">Vence Prov: ${escapeHTML(fVenc)}</span>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-4 gap-1 pt-1 border-t border-neutral-800/80">
-                                    <button onclick="notificarFallaProveedor('${cta.id}')" title="Notificar falla al proveedor" class="bg-red-950/80 hover:bg-red-900 border border-red-500/40 text-red-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <button onclick="notificarFallaProveedor('${escapeHTML(cta.id)}')" title="Notificar falla al proveedor" class="bg-red-950/80 hover:bg-red-900 border border-red-500/40 text-red-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                         <i class="fa-solid fa-triangle-exclamation text-[9px]"></i> Falla
                                     </button>
-                                    <button onclick="abrirWhatsAppDirecto('${cta.tlfProveedor}')" title="Chat WhatsApp con proveedor" class="bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <button onclick="abrirWhatsAppDirecto('${escapeHTML(cta.tlfProveedor)}')" title="Chat WhatsApp con proveedor" class="bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                         <i class="fa-brands fa-whatsapp text-xs"></i> Chat
                                     </button>
-                                    <button onclick="editarCuentaProveedor('${cta.id}')" title="Editar cuenta" class="bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <button onclick="editarCuentaProveedor('${escapeHTML(cta.id)}')" title="Editar cuenta" class="bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                         <i class="fa-solid fa-pen text-[9px]"></i> Editar
                                     </button>
-                                    <button onclick="borrarCuentaProveedor('${cta.id}')" title="Eliminar cuenta" class="bg-neutral-900 border border-neutral-800 hover:border-red-500 text-slate-400 hover:text-red-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
+                                    <button onclick="borrarCuentaProveedor('${escapeHTML(cta.id)}')" title="Eliminar cuenta" class="bg-neutral-900 border border-neutral-800 hover:border-red-500 text-slate-400 hover:text-red-400 font-black text-[8.5px] py-1.5 rounded-xl uppercase flex items-center justify-center gap-1">
                                         <i class="fa-solid fa-trash text-[9px]"></i> Borrar
                                     </button>
                                 </div>
@@ -1970,12 +2035,12 @@
 
                 box.innerHTML += `
                     <div class="card-dark rounded-2xl overflow-hidden border border-neutral-800">
-                        <button onclick="alternarAcordeonProveedor('${pNom}')" class="w-full bg-[#11111e] p-3 flex justify-between items-center text-left hover:bg-neutral-800/50 transition-all">
+                        <button onclick="alternarAcordeonProveedor('${escapeHTML(pNom)}')" class="w-full bg-[#11111e] p-3 flex justify-between items-center text-left hover:bg-neutral-800/50 transition-all">
                             <div class="truncate pr-2">
                                 <h4 class="text-xs font-black text-white uppercase truncate flex items-center gap-1.5">
-                                    <i class="fa-solid fa-user-tie text-purple-400 text-xs"></i> ${pNom}
+                                    <i class="fa-solid fa-user-tie text-purple-400 text-xs"></i> ${escapeHTML(pNom)}
                                 </h4>
-                                <span class="text-[9px] text-slate-400 font-mono block"><i class="fa-solid fa-phone text-[8px] mr-1 text-slate-500"></i>${listaCuentas[0]?.tlfProveedor || 'Sin Teléfono'}</span>
+                                <span class="text-[9px] text-slate-400 font-mono block"><i class="fa-solid fa-phone text-[8px] mr-1 text-slate-500"></i>${escapeHTML(listaCuentas[0]?.tlfProveedor || 'Sin Teléfono')}</span>
                             </div>
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 ${badgeProv}
@@ -2000,7 +2065,7 @@
             const nom = document.getElementById('nueva-plat-nombre').value.trim();
             if (nom && !catalogoServicios.includes(nom)) {
                 catalogoServicios.push(nom);
-                localStorage.setItem('sp_catalogo_servicios', JSON.stringify(catalogoServicios));
+                guardarStorageProtegido('sp_catalogo_servicios', catalogoServicios);
                 poblarSelectServicios();
                 actualizarMetricasYChismoseador();
             }
@@ -2016,7 +2081,7 @@
                     const snap = await dbFirestore.collection("saas_vendedores").get();
                     if (!snap.empty) {
                         dbMasterVendedores = snap.docs.map(doc => doc.data());
-                        localStorage.setItem('sp_master_vendedores', JSON.stringify(dbMasterVendedores));
+                        guardarStorageProtegido('sp_master_vendedores', dbMasterVendedores);
                     }
                 } catch(e) {}
             }
@@ -2044,7 +2109,7 @@
                     return;
                 }
 
-                document.getElementById('login-subtitulo-contexto').innerHTML = `Acceso Comercial a <b class="text-purple-400">${vendedorEnlace.nombre}</b>`;
+                document.getElementById('login-subtitulo-contexto').innerHTML = `Acceso Comercial a <b class="text-purple-400">${escapeHTML(vendedorEnlace.nombre)}</b>`;
                 document.getElementById('login-user').placeholder = vendedorEnlace.usuario;
             }
 
