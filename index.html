@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#07070d">
     <title>TCL Sistema Streaming 2026 — Master Pro</title>
     
@@ -33,29 +33,12 @@
 </head>
 <body class="min-h-screen flex flex-col justify-start pb-24 no-scrollbar">
 
-    <!-- CÁPSULA FLOTANTE DE SALIR ÚNICA -->
+    <!-- CÁPSULA FLOTANTE DE SALIR -->
     <div id="capsula-flotante-salir" class="hidden fixed bottom-16 right-4 z-50">
         <button onclick="cerrarSesion()" title="Cerrar Sesión" class="bg-[#161626]/90 hover:bg-red-950 border border-neutral-700/80 hover:border-red-500/80 text-slate-300 hover:text-white px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-2xl flex items-center gap-1.5 transition-all active:scale-95">
             <i class="fa-solid fa-power-off text-red-500 text-xs"></i>
             <span>Salir</span>
         </button>
-    </div>
-
-    <!-- SPLASH SCREEN DE BIENVENIDA -->
-    <div id="splash-screen" class="fixed inset-0 bg-[#07070d] z-[9999] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-700 hidden">
-        <div class="space-y-4 max-w-xs">
-            <div id="splash-ico-box" class="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto text-white text-3xl shadow-2xl shadow-purple-600/50 animate-bounce">
-                <i class="fa-solid fa-play"></i>
-            </div>
-            <div class="space-y-1">
-                <span class="text-[9px] font-black uppercase tracking-[0.25em] text-purple-400 block">SISTEMA OFICIAL 2026</span>
-                <h2 id="splash-titulo" class="text-base font-black text-white uppercase tracking-tight">Cargando Sistema...</h2>
-                <p id="splash-subtitulo" class="text-[11px] text-slate-400 font-medium">Validando con la nube de Tucocel...</p>
-            </div>
-            <div class="w-24 h-1 bg-neutral-900 mx-auto rounded-full overflow-hidden">
-                <div class="w-full h-full bg-gradient-to-r from-purple-500 to-emerald-400 animate-pulse"></div>
-            </div>
-        </div>
     </div>
 
     <!-- BANNER ASISTENCIA MASTER -->
@@ -76,17 +59,17 @@
                 <div class="w-14 h-14 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto text-white text-2xl shadow-xl shadow-purple-600/30">
                     <i class="fa-solid fa-play"></i>
                 </div>
-                <h2 class="text-lg font-black uppercase tracking-wider text-white">StreamPanel <span class="text-purple-400">Master</span></h2>
+                <h1 class="text-lg font-black uppercase tracking-wider text-white">StreamPanel <span class="text-purple-400">Master</span></h1>
                 <p id="login-subtitulo-contexto" class="text-[10px] text-slate-400 leading-tight">Plataforma Ejecutiva de Control, Almacén y Cobranza</p>
             </div>
 
             <form onsubmit="ejecutarLogin(event)" autocomplete="off" class="space-y-3 pt-1 text-xs font-bold">
                 <div>
-                    <label class="text-[8.5px] text-slate-400 uppercase block mb-1">Usuario</label>
+                    <label for="login-user" class="text-[8.5px] text-slate-400 uppercase block mb-1">Usuario</label>
                     <input type="text" id="login-user" required autocomplete="off" placeholder="Ej: usuario" class="w-full bg-[#0a0a12] border border-neutral-800 text-white px-3 py-2.5 rounded-xl font-mono text-xs focus:outline-none focus:border-purple-500 uppercase">
                 </div>
                 <div>
-                    <label class="text-[8.5px] text-slate-400 uppercase block mb-1">Contraseña</label>
+                    <label for="login-pass" class="text-[8.5px] text-slate-400 uppercase block mb-1">Contraseña</label>
                     <input type="password" id="login-pass" required autocomplete="new-password" placeholder="••••••••" class="w-full bg-[#0a0a12] border border-neutral-800 text-white px-3 py-2.5 rounded-xl font-mono text-xs focus:outline-none focus:border-purple-500">
                 </div>
 
@@ -118,7 +101,7 @@
                 <i class="fa-solid fa-lock"></i>
             </div>
             <div class="space-y-1.5">
-                <h3 id="txt-titulo-bloqueo" class="text-base font-black text-white uppercase tracking-tight">Acceso Suspendido</h3>
+                <h2 id="txt-titulo-bloqueo" class="text-base font-black text-white uppercase tracking-tight">Acceso Suspendido</h2>
                 <p id="txt-motivo-bloqueo" class="text-xs text-slate-400 font-medium leading-relaxed">
                     Tu membresía o período de prueba ha finalizado. Tus datos, clientes y cuentas se mantienen seguros y respaldados.
                 </p>
@@ -136,8 +119,8 @@
         </div>
     </div>
 
-    <!-- PANTALLA 3: CONSOLA MASTER (DISEÑO ENCAPSULADO Y LIMPIO) -->
-    <div id="vista-master" class="hidden flex flex-col w-full">
+    <!-- PANTALLA 3: CONSOLA MASTER -->
+    <div id="vista-master" class="hidden min-h-screen flex flex-col w-full">
         <header class="bg-[#0e0e1a]/95 border-b border-neutral-800 px-4 py-3 sticky top-0 z-40 backdrop-blur-md flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center text-neutral-950 font-black text-sm shadow">
@@ -158,8 +141,8 @@
             </div>
         </header>
 
-        <main class="p-3.5 max-w-4xl mx-auto w-full space-y-4">
-            <!-- 1. BLOQUE DE COTIZACIÓN CAMBIARIA FRONTERA -->
+        <section class="p-3.5 max-w-4xl mx-auto w-full space-y-4">
+            <!-- 1. COTIZACIÓN CAMBIARIA FRONTERA -->
             <div class="card-dark p-3.5 rounded-2xl border-amber-500/30 space-y-2">
                 <div class="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
                     <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
@@ -173,7 +156,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 font-mono">
                     <div class="bg-[#0a0a12] p-2.5 rounded-xl border border-neutral-800 flex items-center justify-between gap-2">
                         <div class="min-w-0 flex-1">
-                            <label class="text-[9.5px] font-black text-slate-300 uppercase block truncate">🇨🇴 Tasa USDT / Pesos (COP)</label>
+                            <label for="master-tasa-cop" class="text-[9.5px] font-black text-slate-300 uppercase block truncate">🇨🇴 Tasa USDT / Pesos (COP)</label>
                             <span class="text-[8px] text-slate-500 block">Pesos colombianos por cada USDT</span>
                         </div>
                         <input type="number" id="master-tasa-cop" value="3600" onchange="actualizarTasasGlobalesMaster()" class="input-clean-dark font-mono text-amber-400 text-sm font-black w-24 py-1 shrink-0 text-center">
@@ -181,7 +164,7 @@
 
                     <div class="bg-[#0a0a12] p-2.5 rounded-xl border border-neutral-800 flex items-center justify-between gap-2">
                         <div class="min-w-0 flex-1">
-                            <label class="text-[9.5px] font-black text-slate-300 uppercase block truncate">🇻🇪 Factor Paridad Cúcuta Bs</label>
+                            <label for="master-tasa-bs" class="text-[9.5px] font-black text-slate-300 uppercase block truncate">🇻🇪 Factor Paridad Cúcuta Bs</label>
                             <span class="text-[8px] text-slate-500 block">Relación cambio Bolívares</span>
                         </div>
                         <input type="number" step="0.1" id="master-tasa-bs" value="3.3" onchange="actualizarTasasGlobalesMaster()" class="input-clean-dark font-mono text-emerald-400 text-sm font-black w-20 py-1 shrink-0 text-center">
@@ -205,32 +188,28 @@
                 </div>
             </div>
 
-            <!-- 3. CENTRAL DE ACCESOS ENCAPSULADA (NO SE ACUMULAN EN PANTALLA) -->
+            <!-- 3. CENTRAL DE ACCESOS ENCAPSULADA -->
             <div class="card-dark p-4 rounded-3xl space-y-3 border-purple-500/30">
-                <span class="text-[10px] font-black text-purple-400 uppercase tracking-wider block border-b border-neutral-800 pb-2">
+                <h2 class="text-[10px] font-black text-purple-400 uppercase tracking-wider block border-b border-neutral-800 pb-2">
                     <i class="fa-solid fa-layer-group mr-1"></i> Módulos de Operación & Clientes
-                </span>
+                </h2>
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    <!-- BOTÓN CÁPSULA 1: BASE DE CLIENTES -->
                     <button onclick="abrirModalBaseVendedores('ACTIVOS')" class="bg-[#0a0a12] hover:bg-neutral-800 border border-neutral-800 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all shadow active:scale-95 text-center">
                         <i class="fa-solid fa-users text-xl text-purple-400"></i>
                         <span class="font-black text-[10.5px] uppercase tracking-wider text-white">Base Clientes<br>(<span id="cnt-badge-activos" class="text-purple-300">0</span>)</span>
                     </button>
 
-                    <!-- BOTÓN CÁPSULA 2: BÓVEDA INACTIVOS -->
                     <button onclick="abrirModalBaseVendedores('ANULADOS')" class="bg-[#0a0a12] hover:bg-neutral-800 border border-neutral-800 hover:border-red-500 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all shadow active:scale-95 text-center">
                         <i class="fa-solid fa-box-archive text-xl text-red-400"></i>
                         <span class="font-black text-[10.5px] uppercase tracking-wider text-white">Bóveda Inactivos<br>(<span id="cnt-badge-inactivos" class="text-red-400">0</span>)</span>
                     </button>
 
-                    <!-- BOTÓN CÁPSULA 3: TARIFAS SAAS -->
                     <button onclick="abrirModalTarifasSaas()" class="bg-[#0a0a12] hover:bg-neutral-800 border border-neutral-800 hover:border-amber-500 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all shadow active:scale-95 text-center">
                         <i class="fa-solid fa-tags text-xl text-amber-400"></i>
                         <span class="font-black text-[10.5px] uppercase tracking-wider text-white">Tarifas SaaS<br><span class="text-amber-300 text-[9px]">Planes</span></span>
                     </button>
 
-                    <!-- BOTÓN CÁPSULA 4: ZONA DE PROPUESTA -->
                     <button onclick="abrirModalZonaPropuesta()" class="bg-gradient-to-tr from-purple-700 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 transition-all shadow-lg active:scale-95 text-center text-white">
                         <i class="fa-solid fa-paper-plane text-xl"></i>
                         <span class="font-black text-[10.5px] uppercase tracking-wider leading-tight">Zona Propuesta<br>Cliente</span>
@@ -244,16 +223,16 @@
                 <p>DESARROLLADO POR PUBLIONLINEMK (AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.)</p>
                 <p class="text-purple-400 font-mono font-bold pt-1">Soporte Técnico: 0424-7357549</p>
             </footer>
-        </main>
+        </section>
     </div>
 
-    <!-- MODAL ENCAPSULADO: BASE DE CLIENTES / REVENDEDORES CON BUSCADOR -->
+    <!-- MODAL BASE DE VENDEDORES -->
     <div id="modal-base-vendedores" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 p-3 sm:p-4 flex items-center justify-center hidden">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="bg-[#0e0e1a] px-4 py-3.5 text-white flex justify-between items-center shrink-0 border-b border-neutral-800">
-                <h3 id="lbl-titulo-modal-vendedores" class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                <h2 id="lbl-titulo-modal-vendedores" class="font-black text-xs uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-users text-purple-400"></i> BASE DE CLIENTES REVENDEDORES
-                </h3>
+                </h2>
                 <button onclick="cerrarModalBaseVendedores()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-base"></i></button>
             </div>
             
@@ -295,8 +274,8 @@
             </div>
         </header>
 
-        <main class="p-3.5 max-w-5xl mx-auto w-full space-y-4">
-            <!-- 1. MÉTRICAS -->
+        <section class="p-3.5 max-w-5xl mx-auto w-full space-y-4">
+            <!-- MÉTRICAS VENDEDOR -->
             <div class="grid grid-cols-4 gap-2">
                 <div onclick="filtrarPorEstado('ACTIVO')" class="card-dark rounded-2xl p-2.5 md:p-3.5 text-center cursor-pointer hover:border-purple-500/50 transition-all">
                     <span class="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase block">Activos</span>
@@ -316,16 +295,16 @@
                 </div>
             </div>
 
-            <!-- 2. SERVICIOS FIJOS -->
+            <!-- CATEGORÍAS FIJAS -->
             <div class="space-y-1.5">
                 <div class="flex justify-between items-center px-1">
-                    <span class="text-[9px] md:text-xs font-black uppercase text-slate-400 tracking-wider">Categorías de Streaming</span>
+                    <h2 class="text-[9px] md:text-xs font-black uppercase text-slate-400 tracking-wider">Categorías de Streaming</h2>
                     <span id="lbl-filtro-activo" class="text-[9px] md:text-xs font-bold text-purple-400 font-mono uppercase">Panel Plegado</span>
                 </div>
                 <div id="grid-plataformas-fijas" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2"></div>
             </div>
 
-            <!-- 3. BUSCADOR Y EXPORTADOR -->
+            <!-- BUSCADOR -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div class="md:col-span-2 relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
@@ -336,17 +315,15 @@
                 </button>
             </div>
 
-            <!-- 4. BANDEJA DE CLIENTES -->
+            <!-- BANDEJA DE CLIENTES -->
             <div id="contenedor-asignaciones" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-        </main>
+        </section>
 
-        <!-- PIE INSTITUCIONAL -->
         <footer class="text-center p-4 border-t border-neutral-900 space-y-0.5 mb-14">
             <p class="text-[8.5px] md:text-[10px] text-slate-300 font-bold uppercase">TCL SISTEMA STREAMING 2026 ES UN SISTEMA DE TUCOCEL C.A.</p>
             <p class="text-[7.5px] md:text-[9px] text-slate-500 uppercase">DESARROLLADO POR PUBLIONLINEMK (AGENCIA DE PUBLICIDAD DE TUCOCEL C.A.)</p>
         </footer>
 
-        <!-- NAVEGACIÓN INFERIOR VENDEDOR -->
         <nav class="fixed bottom-0 inset-x-0 bg-[#0e0e1a]/95 border-t border-neutral-800/80 px-6 py-2.5 flex justify-around items-center z-40 backdrop-blur-md">
             <button onclick="plegarPanel()" class="text-purple-400 flex flex-col items-center gap-0.5 text-[9px] font-black uppercase">
                 <i class="fa-solid fa-users-viewfinder text-base"></i>
@@ -363,20 +340,20 @@
         </nav>
     </div>
 
-    <!-- MODAL: REGISTRAR O EDITAR VENTA -->
+    <!-- MODAL: REGISTRAR / EDITAR VENTA -->
     <div id="modal-formulario-venta" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl overflow-y-auto max-h-[92vh]">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
-                <h3 id="modal-form-titulo" class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
+                <h2 id="modal-form-titulo" class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-cart-shopping text-purple-400"></i> Registrar Venta
-                </h3>
+                </h2>
                 <button onclick="cerrarModalVenta()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <input type="hidden" id="form-edit-id" value="">
 
             <div id="box-selector-cuenta-madre" class="space-y-1 bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800">
-                <label class="text-[8.5px] text-purple-400 uppercase font-black block">Cuenta de Proveedor Guardada</label>
+                <label for="form-select-cuenta-madre" class="text-[8.5px] text-purple-400 uppercase font-black block">Cuenta de Proveedor Guardada</label>
                 <select id="form-select-cuenta-madre" onchange="alSeleccionarCuentaMadre()" class="w-full bg-[#11111e] border border-neutral-700 text-white p-2 rounded-xl text-[10.5px] focus:outline-none uppercase font-mono font-bold">
                     <option value="MANUAL">✍️ Escribir datos manualmente</option>
                 </select>
@@ -384,28 +361,28 @@
 
             <form onsubmit="guardarFormularioVenta(event)" autocomplete="off" class="space-y-2.5 text-xs font-bold">
                 <div>
-                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Servicio</label>
+                    <label for="form-servicio" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Servicio</label>
                     <select id="form-servicio" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl focus:outline-none uppercase"></select>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Correo / Cuenta ID</label>
+                        <label for="form-correo" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Correo / Cuenta ID</label>
                         <input type="text" id="form-correo" required autocomplete="off" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
                     </div>
                     <div>
-                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Contraseña</label>
+                        <label for="form-clave" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Contraseña</label>
                         <input type="text" id="form-clave" required autocomplete="off" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Perfil (Pantalla)</label>
+                        <label for="form-perfil" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Perfil (Pantalla)</label>
                         <input type="text" id="form-perfil" placeholder="Ej: Perfil 2" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl uppercase text-[11px] focus:outline-none">
                     </div>
                     <div>
-                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">PIN</label>
+                        <label for="form-pin" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">PIN</label>
                         <input type="text" id="form-pin" placeholder="1234" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
                     </div>
                 </div>
@@ -413,22 +390,22 @@
                 <div class="border-t border-neutral-800/80 pt-2 space-y-2">
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nombre Cliente</label>
+                            <label for="form-cliente" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nombre Cliente</label>
                             <input type="text" id="form-cliente" required placeholder="Carlos Perez" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl uppercase text-[11px] focus:outline-none">
                         </div>
                         <div>
-                            <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">WhatsApp</label>
+                            <label for="form-tlf" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">WhatsApp</label>
                             <input type="text" id="form-tlf" required placeholder="0414..." class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Duración (Meses libres)</label>
+                            <label for="form-meses" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Duración (Meses libres)</label>
                             <input type="number" id="form-meses" min="1" step="1" value="1" required class="w-full bg-[#0a0a12] border border-neutral-800 text-white font-mono p-2 rounded-xl text-[11px] focus:outline-none">
                         </div>
                         <div>
-                            <label class="text-[8.5px] text-purple-400 uppercase block mb-0.5">Fecha Activación</label>
+                            <label for="form-fecha" class="text-[8.5px] text-purple-400 uppercase block mb-0.5">Fecha Activación</label>
                             <input type="date" id="form-fecha" class="w-full bg-[#0a0a12] border border-purple-500/40 text-purple-300 font-mono p-2 rounded-xl text-[11px] focus:outline-none">
                         </div>
                     </div>
@@ -445,9 +422,9 @@
     <div id="modal-proveedores" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl overflow-y-auto max-h-[92vh]">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
-                <h3 class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
+                <h2 class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-server text-purple-400"></i> Cuentas de Proveedor
-                </h3>
+                </h2>
                 <button onclick="cerrarModalProveedores()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
@@ -457,39 +434,39 @@
                 <span id="lbl-prov-modo" class="text-[8.5px] font-black uppercase text-purple-400 block mb-0.5">Registrar Nueva Cuenta Comprada:</span>
 
                 <div>
-                    <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Servicio</label>
+                    <label for="cta-servicio" class="text-[8px] text-slate-400 uppercase block mb-0.5">Servicio</label>
                     <select id="cta-servicio" class="w-full bg-[#11111e] border border-neutral-800 text-white p-1.5 rounded-xl focus:outline-none uppercase text-[11px]"></select>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Correo Maestro / ID</label>
+                        <label for="cta-correo" class="text-[8px] text-slate-400 uppercase block mb-0.5">Correo Maestro / ID</label>
                         <input type="text" id="cta-correo" required placeholder="cuenta@correo.com" class="w-full bg-[#11111e] border border-neutral-800 text-white p-1.5 rounded-xl font-mono text-[10.5px] focus:outline-none">
                     </div>
                     <div>
-                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Contraseña Maestra</label>
+                        <label for="cta-clave" class="text-[8px] text-slate-400 uppercase block mb-0.5">Contraseña Maestra</label>
                         <input type="text" id="cta-clave" required placeholder="Clave2026*" class="w-full bg-[#11111e] border border-neutral-800 text-white p-1.5 rounded-xl font-mono text-[10.5px] focus:outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Proveedor</label>
+                        <label for="cta-proveedor" class="text-[8px] text-slate-400 uppercase block mb-0.5">Proveedor</label>
                         <input type="text" id="cta-proveedor" required placeholder="Ej: Juan Proveedor" class="w-full bg-[#11111e] border border-neutral-800 text-white p-1.5 rounded-xl uppercase text-[10.5px] focus:outline-none">
                     </div>
                     <div>
-                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">WhatsApp Proveedor</label>
+                        <label for="cta-tlf-prov" class="text-[8px] text-slate-400 uppercase block mb-0.5">WhatsApp Proveedor</label>
                         <input type="text" id="cta-tlf-prov" required placeholder="0414..." class="w-full bg-[#11111e] border border-neutral-800 text-white p-1.5 rounded-xl font-mono text-[10.5px] focus:outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Fecha Adquisición</label>
+                        <label for="cta-fecha" class="text-[8px] text-slate-400 uppercase block mb-0.5">Fecha Adquisición</label>
                         <input type="date" id="cta-fecha" class="w-full bg-[#11111e] border border-neutral-800 text-slate-300 font-mono p-1.5 rounded-xl text-[10px] focus:outline-none">
                     </div>
                     <div>
-                        <label class="text-[8px] text-slate-400 uppercase block mb-0.5">Duración (Meses libres)</label>
+                        <label for="cta-meses" class="text-[8px] text-slate-400 uppercase block mb-0.5">Duración (Meses libres)</label>
                         <input type="number" id="cta-meses" min="1" step="1" value="1" required class="w-full bg-[#11111e] border border-neutral-800 text-white font-mono p-1.5 rounded-xl text-[10.5px] focus:outline-none">
                     </div>
                 </div>
@@ -521,14 +498,14 @@
     <div id="modal-nueva-plataforma" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-xs rounded-3xl p-5 space-y-3 shadow-2xl">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
-                <h3 class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
+                <h2 class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-circle-plus text-purple-400"></i> Nueva Plataforma
-                </h3>
+                </h2>
                 <button onclick="cerrarModalNuevaPlat()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form onsubmit="guardarNuevaPlataforma(event)" class="space-y-2.5 text-xs font-bold">
                 <div>
-                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nombre del Servicio</label>
+                    <label for="nueva-plat-nombre" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nombre del Servicio</label>
                     <input type="text" id="nueva-plat-nombre" required placeholder="Ej: Paramount+, Crunchyroll..." class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl focus:outline-none">
                 </div>
                 <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-2 rounded-xl uppercase tracking-wider text-[11px]">
@@ -542,9 +519,9 @@
     <div id="modal-vendedor-master" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl overflow-y-auto max-h-[92vh]">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
-                <h3 id="modal-vendedor-master-titulo" class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
+                <h2 id="modal-vendedor-master-titulo" class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-user-plus text-amber-400"></i> Registrar Vendedor
-                </h3>
+                </h2>
                 <button onclick="cerrarModalNuevoVendedor()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
@@ -552,33 +529,33 @@
 
             <form onsubmit="guardarVendedorMaster(event)" autocomplete="off" class="space-y-2.5 text-xs font-bold">
                 <div>
-                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nombre del Comercio / Revendedor</label>
+                    <label for="m-vendedor-nombre" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nombre del Comercio / Revendedor</label>
                     <input type="text" id="m-vendedor-nombre" onkeyup="alEscribirNombreComercioSlug()" required placeholder="Ej: Streaming Rubio" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl uppercase text-[11px] focus:outline-none">
                 </div>
 
                 <div>
-                    <label class="text-[8.5px] text-amber-400 uppercase block mb-0.5">Enlace Personalizado Autogenerado</label>
+                    <label for="m-vendedor-slug" class="text-[8.5px] text-amber-400 uppercase block mb-0.5">Enlace Personalizado Autogenerado</label>
                     <input type="text" id="m-vendedor-slug" readonly class="w-full bg-[#07070d] border border-amber-500/40 text-amber-300 font-mono p-2 rounded-xl text-[10px] focus:outline-none">
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Usuario de Acceso</label>
+                        <label for="m-vendedor-user" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Usuario de Acceso</label>
                         <input type="text" id="m-vendedor-user" required placeholder="streamingrubio" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none uppercase">
                     </div>
                     <div>
-                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Contraseña</label>
+                        <label for="m-vendedor-pass" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Contraseña</label>
                         <input type="text" id="m-vendedor-pass" required placeholder="Clave123*" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">WhatsApp</label>
+                        <label for="m-vendedor-tlf" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">WhatsApp</label>
                         <input type="text" id="m-vendedor-tlf" required placeholder="0414..." class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-[11px] focus:outline-none">
                     </div>
                     <div>
-                        <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Modalidad de Tiempo</label>
+                        <label for="m-vendedor-tipo-tiempo" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Modalidad de Tiempo</label>
                         <select id="m-vendedor-tipo-tiempo" onchange="alCambiarTipoTiempoVendedor()" class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl text-[10.5px] focus:outline-none">
                             <option value="MESES">Membresía (Meses)</option>
                             <option value="DIAS_PRUEBA">Cuenta Demo (Días)</option>
@@ -588,11 +565,11 @@
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label id="lbl-m-tiempo-valor" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Meses Contratados</label>
+                        <label for="m-vendedor-tiempo-valor" id="lbl-m-tiempo-valor" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Meses Contratados</label>
                         <input type="number" id="m-vendedor-tiempo-valor" min="1" step="1" value="1" required class="w-full bg-[#0a0a12] border border-neutral-800 text-white font-mono p-2 rounded-xl text-[11px] focus:outline-none">
                     </div>
                     <div>
-                        <label class="text-[8.5px] text-amber-400 uppercase block mb-0.5">Fecha Activación</label>
+                        <label for="m-vendedor-fecha" class="text-[8.5px] text-amber-400 uppercase block mb-0.5">Fecha Activación</label>
                         <input type="date" id="m-vendedor-fecha" class="w-full bg-[#0a0a12] border border-amber-500/40 text-amber-300 font-mono p-2 rounded-xl text-[11px] focus:outline-none">
                     </div>
                 </div>
@@ -604,20 +581,20 @@
         </div>
     </div>
 
-    <!-- MODAL: TARIFAS SAAS (PLANES) -->
+    <!-- MODAL: TARIFAS SAAS -->
     <div id="modal-tarifas-saas" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-3 sm:p-4 flex items-center justify-center hidden">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl flex flex-col">
             <div class="bg-[#0e0e1a] px-4 py-3 text-white flex justify-between items-center shrink-0 border-b border-neutral-800">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-tags text-amber-400 text-xs"></i>
-                    <h3 class="font-black text-xs uppercase tracking-wider">Tarifas SaaS Streaming</h3>
+                    <h2 class="font-black text-xs uppercase tracking-wider">Tarifas SaaS Streaming</h2>
                 </div>
                 <button onclick="cerrarModalTarifasSaas()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
             </div>
             <div class="p-4 space-y-3 text-xs font-bold text-slate-300">
                 <div class="grid grid-cols-2 gap-2.5 font-mono">
                     <div class="bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800 space-y-1">
-                        <span class="text-slate-500 uppercase block text-[9px] font-black">PLAN 1 MES</span>
+                        <label for="input-tarifas-30" class="text-slate-500 uppercase block text-[9px] font-black">PLAN 1 MES</label>
                         <input type="number" id="input-tarifas-30" value="10" oninput="recalcularTarifasSaasModal()" class="input-clean-dark font-black text-amber-400 text-sm py-1 font-mono text-center">
                         <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-neutral-800/80">
                             <span id="lbl-tarifa-cop-30" class="text-slate-400 block truncate">36.000 COP</span>
@@ -626,7 +603,7 @@
                     </div>
 
                     <div class="bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800 space-y-1">
-                        <span class="text-slate-500 uppercase block text-[9px] font-black">PLAN 3 MESES</span>
+                        <label for="input-tarifas-90" class="text-slate-500 uppercase block text-[9px] font-black">PLAN 3 MESES</label>
                         <input type="number" id="input-tarifas-90" value="25" oninput="recalcularTarifasSaasModal()" class="input-clean-dark font-black text-amber-400 text-sm py-1 font-mono text-center">
                         <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-neutral-800/80">
                             <span id="lbl-tarifa-cop-90" class="text-slate-400 block truncate">90.000 COP</span>
@@ -635,7 +612,7 @@
                     </div>
 
                     <div class="bg-[#0a0a12] p-2.5 rounded-2xl border border-neutral-800 space-y-1">
-                        <span class="text-slate-500 uppercase block text-[9px] font-black">PLAN 6 MESES</span>
+                        <label for="input-tarifas-180" class="text-slate-500 uppercase block text-[9px] font-black">PLAN 6 MESES</label>
                         <input type="number" id="input-tarifas-180" value="45" oninput="recalcularTarifasSaasModal()" class="input-clean-dark font-black text-amber-400 text-sm py-1 font-mono text-center">
                         <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-neutral-800/80">
                             <span id="lbl-tarifa-cop-180" class="text-slate-400 block truncate">162.000 COP</span>
@@ -644,7 +621,7 @@
                     </div>
 
                     <div class="bg-[#0a0a12] p-2.5 rounded-2xl border border-purple-500/40 space-y-1">
-                        <span class="text-purple-400 uppercase block text-[9px] font-black">PLAN 1 AÑO</span>
+                        <label for="input-tarifas-365" class="text-purple-400 uppercase block text-[9px] font-black">PLAN 1 AÑO</label>
                         <input type="number" id="input-tarifas-365" value="80" oninput="recalcularTarifasSaasModal()" class="input-clean-dark font-black text-purple-300 text-sm py-1 font-mono text-center">
                         <div class="text-[8.5px] font-mono leading-tight pt-0.5 border-t border-purple-500/30">
                             <span id="lbl-tarifa-cop-365" class="text-slate-400 block truncate">288.000 COP</span>
@@ -694,9 +671,9 @@
     <div id="modal-caja-master" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
-                <h3 class="font-black text-xs uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
+                <h2 class="font-black text-xs uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-cash-register"></i> Cobro de Mensualidad
-                </h3>
+                </h2>
                 <button onclick="cerrarModalCajaMaster()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <input type="hidden" id="caja-vendedor-id">
@@ -707,11 +684,11 @@
             </div>
             <div class="space-y-2 text-xs font-bold">
                 <div>
-                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Meses a Extender</label>
+                    <label for="caja-in-meses" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Meses a Extender</label>
                     <input type="number" id="caja-in-meses" min="1" step="1" value="1" class="w-full bg-[#0a0a12] border border-neutral-800 text-white font-mono p-2 rounded-xl text-xs focus:outline-none">
                 </div>
                 <div>
-                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Monto Pagado (USD / USDT)</label>
+                    <label for="caja-in-monto" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Monto Pagado (USD / USDT)</label>
                     <input type="text" id="caja-in-monto" placeholder="Ej: 10 USDT" class="w-full bg-[#0a0a12] border border-neutral-800 text-emerald-400 font-mono p-2 rounded-xl text-xs focus:outline-none">
                 </div>
                 <button onclick="confirmarPagoCajaMaster()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl uppercase tracking-wider text-xs shadow">
@@ -725,14 +702,14 @@
     <div id="modal-mi-perfil" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 p-4 hidden flex items-center justify-center">
         <div class="bg-[#11111e] border border-neutral-800 w-full max-w-xs rounded-3xl p-5 space-y-3.5 shadow-2xl">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
-                <h3 class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
+                <h2 class="font-black text-xs uppercase text-white tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-key text-purple-400"></i> Cambiar Mi Clave
-                </h3>
+                </h2>
                 <button onclick="cerrarModalMiPerfil()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form onsubmit="guardarNuevaClaveVendedor(event)" class="space-y-2.5 text-xs font-bold">
                 <div>
-                    <label class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nueva Contraseña</label>
+                    <label for="perfil-nueva-clave" class="text-[8.5px] text-slate-400 uppercase block mb-0.5">Nueva Contraseña</label>
                     <input type="text" id="perfil-nueva-clave" required placeholder="Escribe tu nueva clave..." class="w-full bg-[#0a0a12] border border-neutral-800 text-white p-2 rounded-xl font-mono text-xs focus:outline-none">
                 </div>
                 <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-2.5 rounded-xl uppercase tracking-wider text-xs shadow-lg">
@@ -742,7 +719,7 @@
         </div>
     </div>
 
-    <!-- VISTA 5: PROPUESTA COMERCIAL & CATÁLOGO STREAMING (REDISIDIO COMERCIAL CLARO Y SIN CONFUSIONES) -->
+    <!-- VISTA 5: PROPUESTA COMERCIAL & CATÁLOGO STREAMING -->
     <div id="vista-propuesta-streaming" class="hidden min-h-screen bg-[#07070d] text-white p-3 sm:p-6 w-full overflow-y-auto z-50">
         <div class="max-w-md mx-auto sm:max-w-4xl space-y-6 px-2 py-4">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-3">
@@ -754,7 +731,7 @@
                 </button>
             </div>
 
-            <!-- ENCABEZADO DE ALTO IMPACTO -->
+            <!-- ENCABEZADO -->
             <header class="text-center space-y-3 pt-2">
                 <span class="bg-purple-500/10 text-purple-400 border border-purple-500/30 text-[10px] sm:text-xs font-black tracking-widest uppercase px-4 py-1.5 rounded-full inline-flex items-center gap-2 shadow-sm">
                     <i class="fa-solid fa-rocket text-purple-400"></i> SISTEMA SAAS PARA REVENDEDORES 2026
@@ -767,19 +744,36 @@
                 </p>
             </header>
 
-            <!-- CAPACIDADES DEL SISTEMA (PRESENTACIÓN TIPO SHOWCASE) -->
-            <section class="space-y-3">
-                <h3 class="text-xs font-black uppercase tracking-widest text-purple-400 border-b border-neutral-800 pb-1.5 flex items-center gap-2">
+            <!-- PLATAFORMAS -->
+            <section class="space-y-2.5">
+                <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-400 block text-center">
+                    COMPATIBLE CON TODAS LAS PLATAFORMAS LÍDERES
+                </h2>
+                <div class="grid grid-cols-4 sm:grid-cols-8 gap-2 font-mono text-center">
+                    <div class="card-dark p-2 rounded-xl border border-red-500/30 text-red-500 text-[11px] font-black">NETFLIX</div>
+                    <div class="card-dark p-2 rounded-xl border border-blue-500/30 text-blue-400 text-[11px] font-black">DISNEY+</div>
+                    <div class="card-dark p-2 rounded-xl border border-purple-500/30 text-purple-400 text-[11px] font-black">MAX</div>
+                    <div class="card-dark p-2 rounded-xl border border-sky-500/30 text-sky-400 text-[11px] font-black">PRIME</div>
+                    <div class="card-dark p-2 rounded-xl border border-emerald-500/30 text-emerald-400 text-[11px] font-black">IPTV</div>
+                    <div class="card-dark p-2 rounded-xl border border-green-500/30 text-green-400 text-[11px] font-black">SPOTIFY</div>
+                    <div class="card-dark p-2 rounded-xl border border-orange-500/30 text-orange-400 text-[11px] font-black">CRUNCHY</div>
+                    <div class="card-dark p-2 rounded-xl border border-cyan-500/30 text-cyan-400 text-[11px] font-black">PARAMOUNT</div>
+                </div>
+            </section>
+
+            <!-- CAPACIDADES -->
+            <section class="space-y-3 pt-1">
+                <h2 class="text-xs font-black uppercase tracking-widest text-purple-400 border-b border-neutral-800 pb-1.5 flex items-center gap-2">
                     <i class="fa-solid fa-cube"></i> ¿POR QUÉ TU NEGOCIO NECESITA ESTA HERRAMIENTA?
-                </h3>
+                </h2>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="glass-panel p-4 rounded-2xl space-y-2 border border-neutral-800 hover:border-purple-500/50 transition-all">
                         <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-black text-sm">
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
-                        <h4 class="font-black text-white uppercase text-xs">Cero Confusión de Pantallas</h4>
+                        <h3 class="font-black text-white uppercase text-xs">Cero Confusión de Pantallas</h3>
                         <p class="text-slate-400 text-[11px] leading-relaxed">
-                            Organiza Netflix, Disney+, Max, Prime, IPTV y Spotify con correo maestro, perfil y PIN individual. Nunca más le darás el mismo acceso a dos clientes.
+                            Organiza perfiles con correo maestro, clave y PIN asignado. Envía la ficha lista para ver directo al WhatsApp del cliente con 1 solo toque.
                         </p>
                     </div>
 
@@ -787,9 +781,9 @@
                         <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-sm">
                             <i class="fa-brands fa-whatsapp"></i>
                         </div>
-                        <h4 class="font-black text-white uppercase text-xs">Cobranza en 1 Toque</h4>
+                        <h3 class="font-black text-white uppercase text-xs">Cobranza en 1 Toque</h3>
                         <p class="text-slate-400 text-[11px] leading-relaxed">
-                            El semáforo te alerta 4 días antes del corte. Envía el recordatorio de pago listo y profesional al WhatsApp del cliente con solo presionar un botón.
+                            El semáforo te alerta 4 días antes del corte. Envía el recordatorio de pago profesional sin que tengas que redactar mensajes a mano.
                         </p>
                     </div>
 
@@ -797,7 +791,7 @@
                         <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-sm">
                             <i class="fa-solid fa-server"></i>
                         </div>
-                        <h4 class="font-black text-white uppercase text-xs">Control de Proveedores</h4>
+                        <h3 class="font-black text-white uppercase text-xs">Control de Proveedores</h3>
                         <p class="text-slate-400 text-[11px] leading-relaxed">
                             ¿Se cayó una cuenta? Toca "Falla" y el sistema genera automáticamente el reclamo con correo, clave y fecha de compra directo al chat de tu proveedor.
                         </p>
@@ -805,26 +799,23 @@
                 </div>
             </section>
 
-            <!-- TABLA UNIFICADA Y TRANSPARENTE DE PRECIOS Y AHORRO (SIN CONTRADICCIONES) -->
+            <!-- TARIFAS DE PLANES -->
             <section class="space-y-3 pt-2">
                 <div class="text-center space-y-1">
                     <span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full inline-block">
                         TARIFAS OFICIALES & PLANES DISPONIBLES
                     </span>
-                    <h3 class="font-black text-base sm:text-lg uppercase text-white tracking-tight">
+                    <h2 class="font-black text-base sm:text-lg uppercase text-white tracking-tight">
                         ELIGE EL PLAN QUE MEJOR SE ADAPTE A TU RITMO DE VENTA
-                    </h3>
+                    </h2>
                     <p class="text-xs text-slate-400">Precios expresados en USDT con conversión oficial al día en Pesos y Bolívares.</p>
                 </div>
 
-                <!-- 4 TARJETAS CLARAS DE PRECIO UNIFICADO -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-center font-mono">
-                    
-                    <!-- PLAN 1 MES -->
                     <div class="glass-panel border border-neutral-800 rounded-3xl p-4 flex flex-col justify-between space-y-3">
                         <div>
                             <span class="text-[9.5px] text-slate-400 font-bold uppercase block tracking-wider">MENSUAL</span>
-                            <h4 class="text-xs font-black text-white uppercase">1 MES (30 DÍAS)</h4>
+                            <h3 class="text-xs font-black text-white uppercase">1 MES (30 DÍAS)</h3>
                             <div class="text-2xl font-black text-white mt-1"><span id="lbl-prop-plan-30">$10</span> <span class="text-xs text-slate-400">USDT</span></div>
                             <span class="text-[9px] text-slate-500 uppercase block font-sans">Pago mensual recurrente</span>
                         </div>
@@ -833,12 +824,11 @@
                         </div>
                     </div>
 
-                    <!-- PLAN 3 MESES -->
                     <div class="glass-panel border border-purple-500/40 rounded-3xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden bg-purple-950/10">
                         <span class="bg-purple-600 text-white font-black text-[8px] px-2 py-0.5 rounded-full absolute top-2 right-2 uppercase">TRIMESTRAL</span>
                         <div>
                             <span class="text-[9.5px] text-purple-400 font-bold uppercase block tracking-wider">3 MESES (90 DÍAS)</span>
-                            <h4 class="text-xs font-black text-white uppercase">TRIMESTRE PRO</h4>
+                            <h3 class="text-xs font-black text-white uppercase">TRIMESTRE PRO</h3>
                             <div class="text-2xl font-black text-purple-300 mt-1"><span id="lbl-prop-plan-90">$25</span> <span class="text-xs text-slate-400">USDT</span></div>
                             <span id="tab-plan-90-badge-ahorro" class="text-[9px] text-emerald-400 font-bold uppercase block font-sans bg-emerald-950/60 py-0.5 rounded-full border border-emerald-500/30 mt-1">¡Ahorras $5 USD!</span>
                         </div>
@@ -847,12 +837,11 @@
                         </div>
                     </div>
 
-                    <!-- PLAN 6 MESES -->
                     <div class="glass-panel border border-blue-500/40 rounded-3xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden bg-blue-950/10">
                         <span class="bg-blue-600 text-white font-black text-[8px] px-2 py-0.5 rounded-full absolute top-2 right-2 uppercase">MÁS POPULAR</span>
                         <div>
                             <span class="text-[9.5px] text-blue-400 font-bold uppercase block tracking-wider">6 MESES (180 DÍAS)</span>
-                            <h4 class="text-xs font-black text-white uppercase">SEMESTRE PRO</h4>
+                            <h3 class="text-xs font-black text-white uppercase">SEMESTRE PRO</h3>
                             <div class="text-2xl font-black text-blue-300 mt-1"><span id="lbl-prop-plan-180">$45</span> <span class="text-xs text-slate-400">USDT</span></div>
                             <span id="tab-plan-180-badge-ahorro" class="text-[9px] text-emerald-400 font-bold uppercase block font-sans bg-emerald-950/60 py-0.5 rounded-full border border-emerald-500/30 mt-1">¡Ahorras $15 USD!</span>
                         </div>
@@ -861,12 +850,11 @@
                         </div>
                     </div>
 
-                    <!-- PLAN 1 AÑO -->
                     <div class="glass-panel border border-amber-500/40 rounded-3xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden bg-amber-950/10">
                         <span class="bg-amber-500 text-neutral-950 font-black text-[8px] px-2 py-0.5 rounded-full absolute top-2 right-2 uppercase">MÁXIMO AHORRO</span>
                         <div>
                             <span class="text-[9.5px] text-amber-400 font-bold uppercase block tracking-wider">1 AÑO (365 DÍAS)</span>
-                            <h4 class="text-xs font-black text-white uppercase">MEMBRESÍA ANUAL</h4>
+                            <h3 class="text-xs font-black text-white uppercase">MEMBRESÍA ANUAL</h3>
                             <div class="text-2xl font-black text-amber-300 mt-1"><span id="lbl-prop-plan-365">$80</span> <span class="text-xs text-slate-400">USDT</span></div>
                             <span id="tab-plan-365-badge-ahorro" class="text-[9px] text-emerald-400 font-bold uppercase block font-sans bg-emerald-950/60 py-0.5 rounded-full border border-emerald-500/30 mt-1">¡Ahorras $40 USD!</span>
                         </div>
@@ -874,7 +862,6 @@
                             <span>288.000 COP</span><br><span class="text-emerald-400 font-bold">87.272,73 Bs</span>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- PASARELAS DE PAGO -->
@@ -891,7 +878,7 @@
                 </div>
             </section>
 
-            <!-- BOTÓN DE CIERRE DIRECTO A WHATSAPP -->
+            <!-- LLAMADO A LA ACCIÓN -->
             <section class="p-0.5 rounded-3xl bg-gradient-to-r from-purple-600 via-indigo-600 to-emerald-500 shadow-2xl">
                 <div class="glass-panel rounded-[22px] p-6 sm:p-7 text-center space-y-3.5">
                     <h2 class="font-black text-sm sm:text-base uppercase text-white tracking-tight">
@@ -913,7 +900,7 @@
         </div>
     </div>
 
-    <!-- VISTA 6: TÉRMINOS Y LICENCIA DIGITAL (LIMPIO, SIN CÉDULA NI SENIAT) -->
+    <!-- VISTA 6: TÉRMINOS Y LICENCIA DIGITAL -->
     <div id="vista-contrato-streaming" class="hidden min-h-screen bg-[#07070d] text-white p-3 sm:p-6 w-full overflow-y-auto z-50">
         <div class="max-w-2xl mx-auto space-y-4 px-2 py-4">
             <div class="flex justify-between items-center border-b border-neutral-800 pb-3">
@@ -960,24 +947,24 @@
                     </div>
                 </div>
 
-                <!-- FICHA RÁPIDA SIN CÉDULA -->
+                <!-- FORMULARIO DIRECTO SIN CÉDULA -->
                 <form onsubmit="event.preventDefault(); procesarAceptacionTerminos();" class="space-y-3 pt-3 border-t border-neutral-800 text-xs">
-                    <h3 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <h2 class="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-circle-check"></i> Ficha de Registro del Revendedor
-                    </h3>
+                    </h2>
 
                     <div class="space-y-2">
                         <div>
-                            <label class="text-[9px] text-slate-400 uppercase block mb-0.5">Nombre Comercial del Revendedor *</label>
+                            <label for="term-nombre" class="text-[9px] text-slate-400 uppercase block mb-0.5">Nombre Comercial del Revendedor *</label>
                             <input type="text" id="term-nombre" required placeholder="Ej: Streaming Rubio" class="input-clean-dark font-bold uppercase">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="text-[9px] text-slate-400 uppercase block mb-0.5">WhatsApp *</label>
+                                <label for="term-tlf" class="text-[9px] text-slate-400 uppercase block mb-0.5">WhatsApp *</label>
                                 <input type="tel" id="term-tlf" required placeholder="0414..." class="input-clean-dark font-mono">
                             </div>
                             <div>
-                                <label class="text-[9px] text-slate-400 uppercase block mb-0.5">Usuario Preferido *</label>
+                                <label for="term-user" class="text-[9px] text-slate-400 uppercase block mb-0.5">Usuario Preferido *</label>
                                 <input type="text" id="term-user" required placeholder="streamingrubio" class="input-clean-dark font-mono uppercase">
                             </div>
                         </div>
@@ -993,7 +980,7 @@
 
     <!-- SCRIPT CENTRAL -->
     <script>
-        // ================= SANITIZACIÓN & SEGURIDAD =================
+        // ================= SANITIZACIÓN & ALMACENAMIENTO SEGURO =================
         function escapeHTML(str) {
             if (typeof str !== 'string') return str ?? '';
             return str
@@ -1004,46 +991,26 @@
                 .replace(/'/g, '&#039;');
         }
 
-        function guardarStorageProtegido(clave, objeto) {
+        function guardarStorage(clave, objeto) {
             try {
-                const str = JSON.stringify(objeto);
-                const bytes = new TextEncoder().encode(str);
-                let binary = '';
-                for (let i = 0; i < bytes.byteLength; i++) {
-                    binary += String.fromCharCode(bytes[i]);
-                }
-                localStorage.setItem(clave, 'ENC_' + btoa(binary));
-            } catch (e) {
                 localStorage.setItem(clave, JSON.stringify(objeto));
+            } catch (e) {
+                console.warn("Aviso almacenamiento local:", e);
             }
         }
 
-        function obtenerStorageProtegido(clave) {
-            const raw = localStorage.getItem(clave);
-            if (!raw) return null;
-            if (raw.startsWith('ENC_')) {
-                try {
-                    const bin = atob(raw.substring(4));
-                    const bytes = new Uint8Array(bin.length);
-                    for (let i = 0; i < bin.length; i++) {
-                        bytes[i] = bin.charCodeAt(i);
-                    }
-                    const dec = new TextDecoder().decode(bytes);
-                    return JSON.parse(dec);
-                } catch (e) {
-                    return null;
-                }
-            }
+        function obtenerStorage(clave) {
             try {
-                return JSON.parse(raw);
+                const raw = localStorage.getItem(clave);
+                return raw ? JSON.parse(raw) : null;
             } catch (e) {
                 return null;
             }
         }
 
-        // ================= MOTOR CAMBIARIO DE FRONTERA (TÁCHIRA - CÚCUTA) =================
-        const tasasGuardadas = localStorage.getItem('sp_tasas_globales_2026');
-        window.tasasConfig = tasasGuardadas ? JSON.parse(tasasGuardadas) : { cop: 3600, paridadBs: 3.3 };
+        // ================= MOTOR CAMBIARIO DE FRONTERA =================
+        const tasasGuardadas = obtenerStorage('sp_tasas_globales_2026');
+        window.tasasConfig = tasasGuardadas || { cop: 3600, paridadBs: 3.3 };
 
         window.calcularPesosDesdeUSD = function(dolares) {
             return (dolares || 0) * (window.tasasConfig.cop || 3600);
@@ -1072,14 +1039,14 @@
             if (mtCop) window.tasasConfig.cop = parseFloat(mtCop.value) || 3600;
             if (mtBs) window.tasasConfig.paridadBs = parseFloat(mtBs.value) || 3.3;
 
-            localStorage.setItem('sp_tasas_globales_2026', JSON.stringify(window.tasasConfig));
+            guardarStorage('sp_tasas_globales_2026', window.tasasConfig);
             recalcularTarifasSaasModal();
             renderizarTarifasEnPropuesta();
         }
 
         // ================= GESTIÓN DE TARIFAS SAAS =================
-        const tarifasGuardadas = localStorage.getItem('sp_tarifas_saas_2026');
-        window.tarifasConfig = tarifasGuardadas ? JSON.parse(tarifasGuardadas) : { p30: 10, p90: 25, p180: 45, p365: 80 };
+        const tarifasGuardadas = obtenerStorage('sp_tarifas_saas_2026');
+        window.tarifasConfig = tarifasGuardadas || { p30: 10, p90: 25, p180: 45, p365: 80 };
 
         function abrirModalTarifasSaas() {
             document.getElementById('input-tarifas-30').value = window.tarifasConfig.p30 || 10;
@@ -1115,7 +1082,7 @@
             const p365 = parseFloat(document.getElementById('input-tarifas-365').value) || 80;
 
             window.tarifasConfig = { p30, p90, p180, p365 };
-            localStorage.setItem('sp_tarifas_saas_2026', JSON.stringify(window.tarifasConfig));
+            guardarStorage('sp_tarifas_saas_2026', window.tarifasConfig);
             renderizarTarifasEnPropuesta();
             cerrarModalTarifasSaas();
             alert("✨ Tarifas SaaS actualizadas y conectadas al Catálogo y Propuesta.");
@@ -1145,7 +1112,6 @@
                 }
             });
 
-            // Insignias dinámicas de ahorro
             const ahorro90 = Math.max(0, (p30 * 3) - p90);
             const b90 = document.getElementById('tab-plan-90-badge-ahorro');
             if (b90) b90.innerText = ahorro90 > 0 ? `¡Ahorras $${ahorro90} USD!` : `Plan 3 Meses`;
@@ -1159,7 +1125,7 @@
             if (b365) b365.innerText = ahorro365 > 0 ? `¡Ahorras $${ahorro365} USD!` : `Plan Anual`;
         }
 
-        // ================= HANDLERS BASE DE VENDEDORES (ENCAPSULADA) =================
+        // ================= HANDLERS BASE DE VENDEDORES =================
         function abrirModalBaseVendedores(tipo = 'ACTIVOS') {
             viendoBovedaAnulados = (tipo === 'ANULADOS');
             const lbl = document.getElementById('lbl-titulo-modal-vendedores');
@@ -1168,7 +1134,8 @@
                     ? `<i class="fa-solid fa-box-archive text-red-400"></i> BÓVEDA DE INACTIVOS / ANULADOS`
                     : `<i class="fa-solid fa-users text-purple-400"></i> BASE DE CLIENTES ACTIVOS`;
             }
-            document.getElementById('busqueda-modal-vendedor').value = '';
+            const inp = document.getElementById('busqueda-modal-vendedor');
+            if (inp) inp.value = '';
             renderizarBandejaMaster();
             document.getElementById('modal-base-vendedores').classList.remove('hidden');
         }
@@ -1303,8 +1270,8 @@
 
         const NUMERO_SOPORTE_OFICIAL = "04247357549";
 
-        let dbMasterVendedores = obtenerStorageProtegido('sp_master_vendedores') || [];
-        let sesionActual = JSON.parse(sessionStorage.getItem('sp_sesion_activa')) || obtenerStorageProtegido('sp_sesion_persistente') || null;
+        let dbMasterVendedores = obtenerStorage('sp_master_vendedores') || [];
+        let sesionActual = JSON.parse(sessionStorage.getItem('sp_sesion_activa')) || obtenerStorage('sp_sesion_persistente') || null;
         let esModoMasterImpersonacion = false;
         let vendedorIdImpersonado = null;
         let viendoBovedaAnulados = false;
@@ -1416,22 +1383,6 @@
             window.addEventListener(ev, reiniciarTemporizadorInactividad, { passive: true });
         });
 
-        function mostrarSplashScreen(titulo, subtitulo, callback) {
-            const sp = document.getElementById('splash-screen');
-            document.getElementById('splash-titulo').innerText = titulo;
-            document.getElementById('splash-subtitulo').innerText = subtitulo;
-            sp.classList.remove('hidden');
-            sp.style.opacity = '1';
-
-            setTimeout(() => {
-                sp.style.opacity = '0';
-                setTimeout(() => {
-                    sp.classList.add('hidden');
-                    if (callback) callback();
-                }, 700);
-            }, 2500);
-        }
-
         // ================= AUTENTICACIÓN DIRECTA =================
         async function ejecutarLogin(e) {
             e.preventDefault();
@@ -1440,15 +1391,9 @@
             const recordar = document.getElementById('chk-recordar-sesion').checked;
 
             if (u === "tucocel" && p === "Razu2020.") {
-                mostrarSplashScreen(
-                    "BIENVENIDO A TCL SISTEMA STREAMING 2026",
-                    "Consola Central SuperAdmin • Acceso Autorizado",
-                    () => {
-                        const sesion = { tipo: 'MASTER', usuario: 'tucocel', nombre: 'SUPERADMIN' };
-                        establecerSesion(sesion, recordar);
-                        iniciarModoMaster();
-                    }
-                );
+                const sesion = { tipo: 'MASTER', usuario: 'tucocel', nombre: 'SUPERADMIN' };
+                establecerSesion(sesion, recordar);
+                iniciarModoMaster();
                 return;
             }
 
@@ -1457,7 +1402,7 @@
                     const snap = await dbFirestore.collection("saas_vendedores").get();
                     if (!snap.empty) {
                         dbMasterVendedores = snap.docs.map(doc => doc.data());
-                        guardarStorageProtegido('sp_master_vendedores', dbMasterVendedores);
+                        guardarStorage('sp_master_vendedores', dbMasterVendedores);
                     }
                 } catch (err) {}
             }
@@ -1484,20 +1429,14 @@
                 return;
             }
 
-            mostrarSplashScreen(
-                `BIENVENIDO A ${vendedor.nombre}`,
-                "Espacio de Trabajo Seguro • TCL Streaming 2026",
-                () => {
-                    const sesion = { tipo: 'VENDEDOR', id: vendedor.id, nombre: vendedor.nombre, usuario: vendedor.usuario };
-                    establecerSesion(sesion, recordar);
-                    iniciarModoVendedor(vendedor.id);
-                }
-            );
+            const sesion = { tipo: 'VENDEDOR', id: vendedor.id, nombre: vendedor.nombre, usuario: vendedor.usuario };
+            establecerSesion(sesion, recordar);
+            iniciarModoVendedor(vendedor.id);
         }
 
         function establecerSesion(sesion, persistente) {
             sessionStorage.setItem('sp_sesion_activa', JSON.stringify(sesion));
-            if (persistente) guardarStorageProtegido('sp_sesion_persistente', sesion);
+            if (persistente) guardarStorage('sp_sesion_persistente', sesion);
             else localStorage.removeItem('sp_sesion_persistente');
             sesionActual = sesion;
         }
@@ -1524,6 +1463,7 @@
             document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
             document.getElementById('vista-propuesta-streaming').classList.add('hidden');
             document.getElementById('vista-contrato-streaming').classList.add('hidden');
+            document.getElementById('modal-base-vendedores').classList.add('hidden');
             document.getElementById('vista-login').classList.remove('hidden');
         }
 
@@ -1564,6 +1504,7 @@
             document.getElementById('vista-contrato-streaming').classList.add('hidden');
             document.getElementById('banner-impersonacion').classList.add('hidden');
             document.getElementById('capsula-flotante-salir').classList.add('hidden');
+            document.getElementById('modal-base-vendedores').classList.add('hidden');
             document.getElementById('vista-master').classList.remove('hidden');
 
             const mtCop = document.getElementById('master-tasa-cop');
@@ -1576,7 +1517,7 @@
                     const snap = await dbFirestore.collection("saas_vendedores").get();
                     if (!snap.empty) {
                         dbMasterVendedores = snap.docs.map(doc => doc.data());
-                        guardarStorageProtegido('sp_master_vendedores', dbMasterVendedores);
+                        guardarStorage('sp_master_vendedores', dbMasterVendedores);
                     }
                     document.getElementById('master-cloud-badge').innerText = "🟢 Cloud Firestore Activa";
                 } catch(e) {
@@ -1587,7 +1528,7 @@
         }
 
         async function guardarMasterVendedores() {
-            guardarStorageProtegido('sp_master_vendedores', dbMasterVendedores);
+            guardarStorage('sp_master_vendedores', dbMasterVendedores);
             if (cloudActiva) {
                 try {
                     const batch = dbFirestore.batch();
@@ -1602,11 +1543,15 @@
             }
         }
 
+        function alternarBovedaAnuladosMaster() {
+            abrirModalBaseVendedores('ANULADOS');
+        }
+
         function renderizarBandejaMaster() {
             const box = document.getElementById('contenedor-vendedores-master');
             const busqInp = document.getElementById('busqueda-modal-vendedor');
             const busq = busqInp ? busqInp.value.trim().toUpperCase() : '';
-            box.innerHTML = '';
+            if (box) box.innerHTML = '';
 
             let cTotal = 0, cCobrar = 0, cPausados = 0, cAnulados = 0;
 
@@ -1624,14 +1569,19 @@
                 }
             });
 
-            document.getElementById('master-met-total').innerText = cTotal;
-            document.getElementById('master-met-cobrar').innerText = cCobrar;
-            document.getElementById('master-met-pausados').innerText = cPausados;
+            const mTotal = document.getElementById('master-met-total');
+            const mCobrar = document.getElementById('master-met-cobrar');
+            const mPausados = document.getElementById('master-met-pausados');
+            if (mTotal) mTotal.innerText = cTotal;
+            if (mCobrar) mCobrar.innerText = cCobrar;
+            if (mPausados) mPausados.innerText = cPausados;
 
             const bAct = document.getElementById('cnt-badge-activos');
             const bIna = document.getElementById('cnt-badge-inactivos');
             if (bAct) bAct.innerText = cTotal;
             if (bIna) bIna.innerText = cAnulados;
+
+            if (!box) return;
 
             let lista = dbMasterVendedores.filter(v => {
                 if (v.estado === 'ELIMINADO_DEF') return false;
@@ -1660,7 +1610,7 @@
                 const esDemo = v.tipoDuracion === 'DIAS_PRUEBA';
 
                 const dataKey = `sp_data_${v.id}`;
-                const dataV = obtenerStorageProtegido(dataKey) || { ventas: [], cuentas: [] };
+                const dataV = obtenerStorage(dataKey) || { ventas: [], cuentas: [] };
                 const totalClientes = dataV.ventas?.length || 0;
                 const totalCuentas = dataV.cuentas?.length || 0;
 
@@ -1836,8 +1786,9 @@
                 const existe = dbMasterVendedores.find(x => (x.usuario.toLowerCase() === u || x.slug === slug) && x.estado !== 'ELIMINADO_DEF');
                 if (existe) return alert("❌ Ese nombre de usuario o slug ya existe.");
 
+                const nuevoId = 'vend-' + Date.now();
                 const nuevo = {
-                    id: 'vend-' + Date.now(),
+                    id: nuevoId,
                     nombre: nom,
                     slug: slug,
                     usuario: u,
@@ -1850,13 +1801,23 @@
                     estado: 'ACTIVO',
                     claveModificada: false
                 };
+
+                const dataInicial = { ventas: [], cuentas: [], ultimaModif: Date.now() };
+                guardarStorage(`sp_data_${nuevoId}`, dataInicial);
+
+                if (cloudActiva) {
+                    try {
+                        await dbFirestore.collection("saas_data").doc(nuevoId).set(dataInicial, { merge: true });
+                    } catch(e) {}
+                }
+
                 dbMasterVendedores.unshift(nuevo);
             }
 
             await guardarMasterVendedores();
             cerrarModalNuevoVendedor();
             renderizarBandejaMaster();
-            alert("💾 Vendedor sincronizado en la nube con éxito.");
+            alert("💾 Vendedor registrado y sincronizado en la nube con éxito.");
         }
 
         function despacharCredencialesRevendedor(id) {
@@ -1993,6 +1954,7 @@
             document.getElementById('vista-bloqueo-pausado').classList.add('hidden');
             document.getElementById('vista-propuesta-streaming').classList.add('hidden');
             document.getElementById('vista-contrato-streaming').classList.add('hidden');
+            document.getElementById('vista-master').classList.add('hidden');
             document.getElementById('vista-vendedor').classList.remove('hidden');
             document.getElementById('capsula-flotante-salir').classList.remove('hidden');
 
@@ -2009,7 +1971,7 @@
             aplicarCandadoSincronizacion(true);
 
             const dataKey = `sp_data_${vendedorId}`;
-            const dataV = obtenerStorageProtegido(dataKey) || { ventas: [], cuentas: [] };
+            const dataV = obtenerStorage(dataKey) || { ventas: [], cuentas: [] };
             dbVentas = dataV.ventas || [];
             dbCuentas = dataV.cuentas || [];
             actualizarMetricasYChismoseador();
@@ -2033,7 +1995,7 @@
                             dbVentas = Array.from(mapaVentas.values());
                             dbCuentas = Array.from(mapaCuentas.values());
 
-                            guardarStorageProtegido(dataKey, { ventas: dbVentas, cuentas: dbCuentas });
+                            guardarStorage(dataKey, { ventas: dbVentas, cuentas: dbCuentas });
                         }
                         aplicarCandadoSincronizacion(false);
                         actualizarMetricasYChismoseador();
@@ -2060,7 +2022,7 @@
 
             const dataKey = `sp_data_${vId}`;
             const pack = { ventas: dbVentas, cuentas: dbCuentas, ultimaModif: Date.now() };
-            guardarStorageProtegido(dataKey, pack);
+            guardarStorage(dataKey, pack);
 
             if (cloudActiva) {
                 try {
@@ -2266,6 +2228,7 @@
         function poblarSelectServicios() {
             const selVenta = document.getElementById('form-servicio');
             const selCta = document.getElementById('cta-servicio');
+            if (!selVenta || !selCta) return;
             selVenta.innerHTML = '';
             selCta.innerHTML = '';
             catalogoServicios.forEach(s => {
@@ -2380,6 +2343,7 @@
 
         function renderizarGridPlataformas() {
             const grid = document.getElementById('grid-plataformas-fijas');
+            if (!grid) return;
             grid.innerHTML = '';
 
             const actTodos = filtroServicioActual === 'TODOS';
@@ -2456,6 +2420,7 @@
 
         function actualizarSelectCuentasMadre() {
             const sel = document.getElementById('form-select-cuenta-madre');
+            if (!sel) return;
             sel.innerHTML = `<option value="MANUAL">✍️ Escribir datos manualmente</option>`;
             dbCuentas.forEach((c, idx) => {
                 sel.innerHTML += `<option value="${idx}">[${escapeHTML(c.servicio)}] ${escapeHTML(c.correo)} (${escapeHTML(c.proveedor) || 'Sin Prov.'})</option>`;
@@ -2578,6 +2543,7 @@
         function renderizarListaProveedores() {
             const box = document.getElementById('contenedor-acordeon-proveedores');
             const busq = document.getElementById('in-busqueda-prov')?.value.trim().toUpperCase() || '';
+            if (!box) return;
             box.innerHTML = '';
 
             document.getElementById('lbl-total-cuentas-prov').innerText = `${dbCuentas.length} Cuentas`;
@@ -2676,9 +2642,9 @@
                     <div class="card-dark rounded-2xl overflow-hidden border border-neutral-800">
                         <button onclick="alternarAcordeonProveedor('${escapeHTML(pNom)}')" class="w-full bg-[#11111e] p-3 flex justify-between items-center text-left hover:bg-neutral-800/50 transition-all">
                             <div class="truncate pr-2">
-                                <h4 class="text-xs font-black text-white uppercase truncate flex items-center gap-1.5">
-                                    <i class="fa-solid fa-user-tie text-purple-400 text-xs"></i> ${escapeHTML(pNom)}
-                                </h4>
+                                <h3 class="text-xs font-black text-white uppercase truncate flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-tie text-purple-400 text-xs"></i> ${pNom}
+                                </h3>
                                 <span class="text-[9px] text-slate-400 font-mono block"><i class="fa-solid fa-phone text-[8px] mr-1 text-slate-500"></i>${escapeHTML(listaCuentas[0]?.tlfProveedor || 'Sin Teléfono')}</span>
                             </div>
                             <div class="flex items-center gap-2 flex-shrink-0">
@@ -2704,7 +2670,7 @@
             const nom = document.getElementById('nueva-plat-nombre').value.trim();
             if (nom && !catalogoServicios.includes(nom)) {
                 catalogoServicios.push(nom);
-                guardarStorageProtegido('sp_catalogo_servicios', catalogoServicios);
+                guardarStorage('sp_catalogo_servicios', catalogoServicios);
                 poblarSelectServicios();
                 actualizarMetricasYChismoseador();
             }
@@ -2715,7 +2681,7 @@
         window.onload = async () => {
             const hashSlug = window.location.hash ? window.location.hash.replace('#', '').trim().toLowerCase() : '';
 
-            // 1. Detección directa de propuesta o contrato en URL
+            // Detección de propuesta o contrato
             if (hashSlug === 'propuesta' || window.location.search.includes('propuesta=true')) {
                 mostrarPropuestaDirecta();
                 return;
@@ -2730,7 +2696,7 @@
                     const snap = await dbFirestore.collection("saas_vendedores").get();
                     if (!snap.empty) {
                         dbMasterVendedores = snap.docs.map(doc => doc.data());
-                        guardarStorageProtegido('sp_master_vendedores', dbMasterVendedores);
+                        guardarStorage('sp_master_vendedores', dbMasterVendedores);
                     }
                 } catch(e) {}
             }
